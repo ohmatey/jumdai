@@ -50,7 +50,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
           (alphabet) => alphabet.alphabet !== nextAlphabet.alphabet
         )
 
-        const { numberOfOptions } = action.payload
+        const { numberOfOptions = 3 } = action.payload
         const newRandomOptions = generateUniqueRandomNumbers(numberOfOptions - 1, availableAlphabets.length).map((number) => {
           return availableAlphabets[number]
         })

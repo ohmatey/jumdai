@@ -6,7 +6,12 @@ import {
 import type { GameSettings } from '../types'
 
 export interface GameFormProps {
-  onSubmit: (data: GameSettings) => void
+  onSubmit: (data: {
+    gameType: GameSettings['gameType']
+    gameMode: GameSettings['gameMode']
+    gameLevel: GameSettings['gameLevel']
+    languageMode: GameSettings['languageMode']
+  }) => void
   defaultValues: GameSettings
 }
 

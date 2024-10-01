@@ -29,7 +29,7 @@ export interface GameSettings {
   gameMode: 'random' | 'sequence'
   gameLevel: 'easy' | 'medium' | 'hard'
   languageMode: 'thai' | 'english'
-  numberOfOptions: number
+  numberOfOptions?: number
 }
 
 export interface GameState {
