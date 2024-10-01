@@ -2,11 +2,14 @@
 
 export interface ThaiAlphabet {
   alphabet: string
+  thaiExampleDescription?: string
   romanization: string
+  romanExampleDescription?: string
   order: number
   isConsonant?: boolean
   consonantGroup?: 'low' | 'middle' | 'high'
   isVowel?: boolean
+  imageSrc?: string
 }
 
 export type Reward = {

@@ -8,8 +8,8 @@ import type {
   GameSettings,
 } from './types'
 import gameReducer from './reducers/gameReducer'
-
 import GameForm from './components/GameForm'
+import AlphabetCard from '@/app/modules/alphabet/components/AlphabetCard'
 
 const insitialState: GameState = {
   started: false,
@@ -23,8 +23,6 @@ const insitialState: GameState = {
     numberOfOptions: 3
   }
 }
-
-const promptStyles = 'text-6xl font-bold'
 
 const Home = () => {
   const [state, dispatch] = useReducer(gameReducer, insitialState)
@@ -90,13 +88,11 @@ const Home = () => {
       </div>
 
       {state.started && (
-        <div className='flex flex-col items-center container mx-auto'>
+        <div className='flex flex-col items-center container mx-auto px-4'>
           {/* show the alphabet and romanization of the alphabet */}
           {state.step && (
             <div className='flex flex-col items-center'>
-              <div className='my-10 p-10 border-4 border-white'>
-                <p className={promptStyles}>{state.settings.languageMode === 'thai' ? state.step.prompt.alphabet : state.step.prompt.romanization}</p>
-              </div>
+              <AlphabetCard alphabet={state.step.prompt} languageMode={state.settings.languageMode} />
 
               {/* display click next if its correct */}
               {state.step.correct && (
@@ -123,7 +119,7 @@ const Home = () => {
                       key={index}
                       onClick={() => attemptAnswer(option)}
                       disabled={state.step?.correct}
-                      className={`p-4 pb-8 border border-white font-bold text-8xl ${isCorrect && isCorrectAnswer ? 'border-green-500' : ''} ${!isCorrect && isCorrectAnswer ? 'border-red-500' : ''}`}
+                      className={`p-4 pb-8 border border-white font-bold text-4xl ${isCorrect && isCorrectAnswer ? 'border-green-500' : ''} ${!isCorrect && isCorrectAnswer ? 'border-red-500' : ''}`}
                     >
                       {state.settings.languageMode === 'thai' ? option.romanization : option.alphabet}
                     </button>
