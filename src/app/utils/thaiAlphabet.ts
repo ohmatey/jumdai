@@ -1,0 +1,50 @@
+import { type ThaiAlphabet } from '../types'
+
+const thaiAlphabet: ThaiAlphabet[] = [
+  { alphabet: 'ก', romanization: 'gaw gai', isConsonant: true, consonantGroup: 'middle', order: 1 },
+  { alphabet: 'จ', romanization: 'jauw jaan', isConsonant: true, consonantGroup: 'middle', order: 2 },
+  { alphabet: 'ด', romanization: 'daw dek', isConsonant: true, consonantGroup: 'middle', order: 3 },
+  { alphabet: 'ฎ', romanization: 'daw chada', isConsonant: true, consonantGroup: 'middle', order: 4 },
+  { alphabet: 'ต', romanization: 'daw dtao', isConsonant: true, consonantGroup: 'middle', order: 5 },
+  { alphabet: 'ฏ', romanization: 'daw padak', isConsonant: true, consonantGroup: 'middle', order: 6 },
+  { alphabet: 'บ', romanization: 'baw bai mai', isConsonant: true, consonantGroup: 'middle', order: 7 },
+  { alphabet: 'ป', romanization: 'baw bplaa', isConsonant: true, consonantGroup: 'middle', order: 8 },
+  { alphabet: 'อ', romanization: 'aw ang', isConsonant: true, consonantGroup: 'middle', order: 9 },
+
+  { alphabet: 'ข', romanization: 'kaw khai', isConsonant: true, consonantGroup: 'high', order: 10 },
+  { alphabet: 'ฉ', romanization: 'chaw ching', isConsonant: true, consonantGroup: 'high', order: 11 },
+  { alphabet: 'ถ', romanization: 'taw tung', isConsonant: true, consonantGroup: 'high', order: 12 },
+  { alphabet: 'ฐ', romanization: 'taw tahaan', isConsonant: true, consonantGroup: 'high', order: 13 },
+  { alphabet: 'ผ', romanization: 'paw phung', isConsonant: true, consonantGroup: 'high', order: 14 },
+  { alphabet: 'ฝ', romanization: 'faw faa', isConsonant: true, consonantGroup: 'high', order: 15 },
+  { alphabet: 'ศ', romanization: 'saw sala', isConsonant: true, consonantGroup: 'high', order: 16 },
+  { alphabet: 'ษ', romanization: 'saw ruusii', isConsonant: true, consonantGroup: 'high', order: 17 },
+  { alphabet: 'ส', romanization: 'saw suaa', isConsonant: true, consonantGroup: 'high', order: 18 },
+  { alphabet: 'ห', romanization: 'haw heap', isConsonant: true, consonantGroup: 'high', order: 19 },
+
+  { alphabet: 'ค', romanization: 'khaw khwai', isConsonant: true, consonantGroup: 'low', order: 20 },
+  { alphabet: 'ฆ', romanization: 'kaw rakang', isConsonant: true, consonantGroup: 'low', order: 21 },
+  { alphabet: 'ช', romanization: 'chaw ching', isConsonant: true, consonantGroup: 'low', order: 22 },
+  { alphabet: 'ฌ', romanization: 'chaw chuur', isConsonant: true, consonantGroup: 'low', order: 23 },
+  { alphabet: 'ท', romanization: 'taw thahaan', isConsonant: true, consonantGroup: 'low', order: 24 },
+  { alphabet: 'ธ', romanization: 'taw thong', isConsonant: true, consonantGroup: 'low', order: 25 },
+  { alphabet: 'ฒ', romanization: 'taw putow', isConsonant: true, consonantGroup: 'low', order: 26 },
+  { alphabet: 'พ', romanization: 'phaw phaan', isConsonant: true, consonantGroup: 'low', order: 27 },
+  { alphabet: 'ภ', romanization: 'phaw samphao', isConsonant: true, consonantGroup: 'low', order: 28 },
+  { alphabet: 'ฟ', romanization: 'faw fun', isConsonant: true, consonantGroup: 'low', order: 29 },
+  { alphabet: 'ซ', romanization: 'saw soo', isConsonant: true, consonantGroup: 'low', order: 30 },
+  { alphabet: 'ฮ', romanization: 'hoo nok hook', isConsonant: true, consonantGroup: 'low', order: 31 },
+
+  { alphabet: 'ง', romanization: 'ngaw ngu', isConsonant: true, consonantGroup: 'low', order: 32 },
+  { alphabet: 'น', romanization: 'naw nuu', isConsonant: true, consonantGroup: 'low', order: 33 },
+  { alphabet: 'ณ', romanization: 'naw naan', isConsonant: true, consonantGroup: 'low', order: 34 },
+  { alphabet: 'ม', romanization: 'maw maa', isConsonant: true, consonantGroup: 'low', order: 35 },
+  { alphabet: 'ย', romanization: 'yaw yuk', isConsonant: true, consonantGroup: 'low', order: 36 },
+  { alphabet: 'ญ', romanization: 'yaw ying', isConsonant: true, consonantGroup: 'low', order: 37 },
+  { alphabet: 'ร', romanization: 'raw rua', isConsonant: true, consonantGroup: 'low', order: 38 },
+  { alphabet: 'ล', romanization: 'law ling', isConsonant: true, consonantGroup: 'low', order: 39 },
+  { alphabet: 'ฬ', romanization: 'law  julaa', isConsonant: true, consonantGroup: 'low', order: 40 },
+  { alphabet: 'ว', romanization: 'waw waen', isConsonant: true, consonantGroup: 'low', order: 41 },
+]
+
+export default thaiAlphabet

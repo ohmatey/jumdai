@@ -1,101 +1,189 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+import { useReducer } from 'react'
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+import type {
+  ThaiAlphabet,
+  GameState,
+  GameSettings,
+} from './types'
+import gameReducer from './reducers/gameReducer'
+
+import GameForm from './components/GameForm'
+
+const insitialState: GameState = {
+  started: false,
+  step: null,
+  steps: [],
+  settings: {
+    gameType: 'alphabet',
+    gameMode: 'sequence',
+    gameLevel: 'easy',
+    languageMode: 'thai',
+    numberOfOptions: 3
+  }
 }
+
+const promptStyles = 'text-6xl font-bold'
+
+const Home = () => {
+  const [state, dispatch] = useReducer(gameReducer, insitialState)
+
+  console.info(state, 'game state')
+
+  const startGame = (newGameSettings: GameSettings) => {
+    const { gameType, gameMode, gameLevel, languageMode } = newGameSettings
+
+    const numberOfOptions = gameLevel === 'easy' ? 3 : gameLevel === 'medium' ? 4 : 5
+
+    dispatch({
+      type: 'start',
+      payload: {
+        gameType,
+        gameMode,
+        gameLevel,
+        languageMode,
+        numberOfOptions
+      }
+    })
+  }
+
+  const endGame = () => {
+    dispatch({ type: 'end' })
+  }
+
+  const attemptAnswer = (attempted: ThaiAlphabet) => {
+    dispatch({
+      type: 'attempt',
+      payload: {
+        attempt: attempted
+      }
+    })
+  }
+
+  const nextStep = () => {
+    dispatch({
+      type: 'start',
+      payload: state.settings
+    })
+  }
+
+  return (
+    <div>
+      <div className='flex h-10 mb-4'>
+        <div className='container mx-auto flex items-center'>
+          <h1>JumD.ai</h1>
+        </div>
+      </div>
+
+      <div>        
+        {!state.started && (
+          <div className='flex flex-col gap-4 items-center'>
+            <h2 className='text-xl font-bold'>New Game</h2>
+
+            <GameForm
+              onSubmit={startGame}
+              defaultValues={state.settings}
+            />
+          </div>
+        )}
+      </div>
+
+      {state.started && (
+        <div className='flex flex-col items-center container mx-auto'>
+          {/* show the alphabet and romanization of the alphabet */}
+          {state.step && (
+            <div className='flex flex-col items-center'>
+              <div className='my-10 p-10 border-4 border-white'>
+                <p className={promptStyles}>{state.settings.languageMode === 'thai' ? state.step.prompt.alphabet : state.step.prompt.romanization}</p>
+              </div>
+
+              {/* display click next if its correct */}
+              {state.step.correct && (
+                <div className='flex flex-col items-center mb-4'>
+                  <h2
+                    className='text-4xl font-bold mb-2'
+                  >Correct!</h2>
+
+                  <button
+                    onClick={nextStep}
+                    className='p-4 border border-white font-bold text-2xl'
+                  >Next</button>
+                </div>
+              )}
+
+              {/* display options */}
+              <div className='flex flex-wrap gap-4 justify-center'>
+                {state.step.options?.map((option, index) => {
+                  const isCorrect = state.step?.prompt.alphabet === option.alphabet
+                  const isCorrectAnswer = state.step?.correct
+
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => attemptAnswer(option)}
+                      disabled={state.step?.correct}
+                      className={`p-4 pb-8 border border-white font-bold text-8xl ${isCorrect && isCorrectAnswer ? 'border-green-500' : ''} ${!isCorrect && isCorrectAnswer ? 'border-red-500' : ''}`}
+                    >
+                      {state.settings.languageMode === 'thai' ? option.romanization : option.alphabet}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className='flex flex-col items-center my-10'>
+            <p className='text-4xl font-bold mb-4'>{state.steps.reduce((acc, step) => acc + (step.correct ? 1 : 0), 0)} Points</p>
+            <p className='text-2xl font-bold'>{state.steps.filter((step) => step.correct).length}/{state.steps.length} Correct Attempts</p>
+
+            {/* settings */}
+            <div className='flex flex-col gap-4'>
+              <p>{state.settings.gameType} {state.settings.gameMode} {state.settings.gameLevel} {state.settings.languageMode}</p>
+            </div>
+
+            <button
+              onClick={endGame}
+              className='p-2 border border-white font-bold text-l mt-2'
+            >End Game</button>
+          </div>
+
+          {/* horizontal overflow align to left, Apple style */}
+          <div className='overflow-x auto'>
+            <div className='flex flex-wrap gap-4'>
+              {state.steps.map((step, index) => {
+                return (
+                  <div key={index} className={`p-4 border-2 border-white ${step.correct ? 'border-green-500' : ''}`}>
+                    {state.settings.languageMode === 'thai' ? (
+                      <div>
+                        <p>{step.prompt.alphabet}</p>
+                        <p>{step.attempt?.romanization}</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p>{step.prompt.romanization}</p>
+                        <p>{step.attempt?.alphabet}</p>
+                      </div>
+                    )}
+
+                    <div>
+                      {step.rewards?.map((reward, index) => {
+                        return (
+                          <div key={index}>
+                            <p>{reward.points}</p>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default Home
