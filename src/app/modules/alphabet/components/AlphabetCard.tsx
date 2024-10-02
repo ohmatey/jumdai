@@ -23,7 +23,7 @@ const AlphabetCard = ({
         />
       )}
       
-      <p className='text-8xl font-bold'>{languageMode === 'thai' ? alphabet.alphabet : alphabet.romanization}</p>
+      <p className='text-8xl font-bold'>{languageMode === 'thai' ? alphabet.alphabet : `${alphabet.romanTransliterationPrefix} ${alphabet.romanTransliteration}`}</p>
     </div>
   )
 }
