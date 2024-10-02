@@ -121,7 +121,7 @@ const Home = () => {
                       disabled={state.step?.correct}
                       className={`p-4 pb-8 border border-white font-bold text-4xl ${isCorrect && isCorrectAnswer ? 'border-green-500' : ''} ${!isCorrect && isCorrectAnswer ? 'border-red-500' : ''}`}
                     >
-                      {state.settings.languageMode === 'thai' ? option.romanization : option.alphabet}
+                      {state.settings.languageMode === 'thai' ? `${option.romanTransliterationPrefix} ${option.romanTransliteration}` : option.alphabet}
                     </button>
                   )
                 })}
@@ -153,11 +153,11 @@ const Home = () => {
                     {state.settings.languageMode === 'thai' ? (
                       <div>
                         <p>{step.prompt.alphabet}</p>
-                        <p>{step.attempt?.romanization}</p>
+                        <p>{step.prompt.romanTransliterationPrefix} {step.prompt.romanTransliteration}</p>
                       </div>
                     ) : (
                       <div>
-                        <p>{step.prompt.romanization}</p>
+                        <p>{step.prompt.romanTransliterationPrefix} {step.prompt.romanTransliteration}</p>
                         <p>{step.attempt?.alphabet}</p>
                       </div>
                     )}

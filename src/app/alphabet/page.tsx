@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 import thaiAlphabet from '../utils/thaiAlphabet'
 import GenerateAlphabetImage from '../components/GenerateAlphabetImage'
 
@@ -8,9 +10,15 @@ const AlphabetListPage = () => {
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
         {thaiAlphabet.map((item) => (
           <div key={item.alphabet} className='p-4 border border-gray-200 rounded-md text-center'>
-            <img src={`/thai-alphabet/${item.imageSrc}`} alt={item.alphabet} className='rounded-xl mb-2' />
-            <p className='text-2xl mb-1'>{item.alphabet} {item.romanization}</p>
-            <p className='text-2xl'>{item.thaiExampleDescription} {item.romanExampleDescription}</p>
+            <Image
+              src={`/thai-alphabet${item.imageSrc}`}
+              alt={item.alphabet}
+              className='rounded-xl mb-2'
+              width={200}
+              height={200}
+            />
+            <p className='text-2xl mb-1'>{item.alphabet} {item.romanTransliterationPrefix} {item.romanTransliteration}</p>
+            <p className='text-2xl'>{item.thaiExamplePrefix} {item.thaiExampleDescription}</p>
 
             <div className='mt-4'>
               <GenerateAlphabetImage alphabet={item} />

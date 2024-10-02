@@ -2,9 +2,11 @@
 
 export interface ThaiAlphabet {
   alphabet: string
+  thaiExamplePrefix?: string
   thaiExampleDescription?: string
-  romanization: string
-  romanExampleDescription?: string
+  romanTransliterationPrefix?: string
+  romanTransliteration?: string
+  romanDescription?: string
   order: number
   isConsonant?: boolean
   consonantGroup?: 'low' | 'middle' | 'high'
