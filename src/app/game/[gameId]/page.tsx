@@ -2,10 +2,12 @@ import MemoryGame from '@/app/features/MemoryGame'
 
 const GamePage = () => {
   return (
-    <MemoryGame
-      // settings={settings}
-      // onEndGame={() => setStarted(false)}
-    />
+    <div className='container mx-auto p-4'>
+      <MemoryGame
+        // settings={settings}
+        // onEndGame={() => setStarted(false)}
+      />
+    </div>
   )
 }
 

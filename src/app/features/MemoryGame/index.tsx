@@ -33,13 +33,13 @@ const CurrentStep = () => {
     <div className='flex flex-col items-center'>
       <AlphabetCard alphabet={currentStep.prompt} languageMode={settings.languageMode} />
 
-      <div className='flex flex-wrap gap-4 justify-center'>
+      <div className='flex flex-wrap gap-4 justify-center mt-12'>
         {currentStep.options?.map((option, index) => {
           return (
             <button
               key={index}
               onClick={() => attemptAnswer(option)}
-              className={'p-4 pb-8 border border-white font-bold text-4xl'}
+              className={'p-4 border border-white font-bold text-4xl'}
             >
               {settings.languageMode === 'thai' ? `${option?.romanTransliterationPrefix} ${option?.romanTransliteration}` : option?.alphabet}
             </button>
@@ -58,18 +58,22 @@ const SettingsBox = () => {
   } = useMemoryGame(s => s)
 
   return (
-    <div className='flex flex-col items-center my-10'>
-      <p className='text-4xl font-bold mb-4'>{steps.reduce((acc, step) => acc + (step.correct ? 1 : 0), 0)} Points</p>
-      <p className='text-2xl font-bold'>{steps.filter((step) => step.correct).length}/{steps.length} Correct Attempts</p>
+    <div className='flex mb-6 justify-between w-full'>
+      <div>
+        <p className='text-4xl font-bold mb-1'>{steps.reduce((acc, step) => acc + (step.correct ? 1 : 0), 0)} Points</p>
+        <p>{steps.filter((step) => step.correct).length}/{steps.length + 1} Correct Attempts</p>
 
-      <div className='flex flex-col gap-4'>
-        <p>{settings.gameType} {settings.gameMode} {settings.gameLevel} {settings.languageMode}</p>
+        <div className='flex flex-col gap-4'>
+          <p>{settings.gameType} {settings.gameMode} {settings.gameLevel} {settings.languageMode}</p>
+        </div>
       </div>
 
-      <button
-        onClick={endGame}
-        className='p-2 border border-white font-bold text-l mt-2'
-      >End Game</button>
+      <div>
+        <button
+          onClick={endGame}
+          className='p-2 border font-bold text-l mt-2 border-gray-500'
+        >End Game</button>
+      </div>
     </div>
   )
 }
@@ -80,20 +84,23 @@ const StepHistory = () => {
     settings,
   } = useMemoryGame(s => s)
 
+  // last 3
+  const recentSteps = steps.slice(-3).reverse()
+
   return (
-    <div className='flex flex-wrap gap-4'>
-      {steps.map((step, index) => {
+    <div className='flex flex-col gap-4'>
+      {recentSteps.map((step, index) => {
         return (
-          <div key={index} className={`p-4 border-2 border-white ${step.correct ? 'border-green-500' : ''}`}>
+          <div key={index} className={`p-4 py-8 border-2 max-w-64 w-full rounded-2xl ${step.correct ? 'border-green-500' : 'border-red-500'} ${index === 0 ? 'opacity-100' : index === 1 ? 'opacity-50' : 'opacity-30'}`}>
             {settings.languageMode === 'thai' ? (
               <div className='flex flex-col items-center'>
                 <p className='text-4xl font-bold'>{step.prompt.alphabet}</p>
                 <p
-                  className='text-2xl'
+                  className='text-2xl text-center'
                 >{step.attempt.romanTransliterationPrefix} {step.attempt.romanTransliteration}</p>
               </div>
             ) : (
-              <div>
+              <div className='flex flex-col items-center'>
                 <p className='text-4xl font-bold'>{step.prompt.romanTransliterationPrefix} {step.prompt.romanTransliteration}</p>
                 <p>{step.attempt?.alphabet}</p>
               </div>
@@ -112,12 +119,12 @@ export interface MemoryGameProps {
 const MemoryGame = () => {
   return (
     <MemoryGameProvider>
-      <div className='flex flex-col items-center container mx-auto px-4'>
-        <CurrentStep />
-
+      <div className='flex flex-col items-center container mx-auto'>
         <SettingsBox />
 
-        <div className='overflow-x auto'>
+        <CurrentStep />
+
+        <div className='overflow-x auto mt-12'>
           <StepHistory />
         </div>
       </div>
