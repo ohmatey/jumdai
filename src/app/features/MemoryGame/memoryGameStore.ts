@@ -106,9 +106,9 @@ const makeNewStep = (state: GameState, attempted?: ThaiAlphabet): Step => {
     case GameMode.Sequence:
       return makeSequenceStep(state, attempted)
     case GameMode.Random:
-      return makeRandomStep(state, attempted)
+      return makeRandomStep(state)
     default:
-      return makeRandomStep(state, attempted)
+      return makeRandomStep(state)
   }
 }
 
