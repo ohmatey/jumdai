@@ -1,12 +1,12 @@
-import thaiAlphabet from '../utils/thaiAlphabet'
-import generateUniqueRandomNumbers from '../utils/generateUniqueNumbers'
+import thaiAlphabet from '../../utils/thaiAlphabet'
+import generateUniqueRandomNumbers from '../../utils/generateUniqueNumbers'
 import type {
-  ThaiAlphabet,
   GameAction,
   GameState,
   Reward,
   Step
-} from '../types'
+} from './types'
+import type { ThaiAlphabet } from '@/app/types'
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {

@@ -1,17 +1,12 @@
 const generateUniqueRandomNumbers = (length: number, max: number): number[] => {
-  const randomNumbers = new Set<number>()
+  // use array lenght to map
+  const randomNumbers = [...Array(length)].map(() => Math.floor(Math.random() * max))
 
-  while (randomNumbers.size < length) {
-    randomNumbers.add(Math.floor(Math.random() * max))
-  }
+  // if (randomNumbersArray.length < length) {
+  //   return generateUniqueRandomNumbers(length, max)
+  // }
 
-  const randomNumbersArray = Array.from(randomNumbers)
-
-  if (randomNumbersArray.length < length) {
-    return generateUniqueRandomNumbers(length, max)
-  }
-
-  return randomNumbersArray
+  return randomNumbers
 }
 
 export default generateUniqueRandomNumbers
