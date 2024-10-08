@@ -86,13 +86,15 @@ const StepHistory = () => {
         return (
           <div key={index} className={`p-4 border-2 border-white ${step.correct ? 'border-green-500' : ''}`}>
             {settings.languageMode === 'thai' ? (
-              <div>
-                <p>{step.prompt.alphabet}</p>
-                <p>{step.prompt.romanTransliterationPrefix} {step.prompt.romanTransliteration}</p>
+              <div className='flex flex-col items-center'>
+                <p className='text-4xl font-bold'>{step.prompt.alphabet}</p>
+                <p
+                  className='text-2xl'
+                >{step.attempt.romanTransliterationPrefix} {step.attempt.romanTransliteration}</p>
               </div>
             ) : (
               <div>
-                <p>{step.prompt.romanTransliterationPrefix} {step.prompt.romanTransliteration}</p>
+                <p className='text-4xl font-bold'>{step.prompt.romanTransliterationPrefix} {step.prompt.romanTransliteration}</p>
                 <p>{step.attempt?.alphabet}</p>
               </div>
             )}
