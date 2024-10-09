@@ -3,7 +3,6 @@ import {
   useForm,
 } from 'react-hook-form'
 
-import { defaultInitState } from '../features/MemoryGame/memoryGameStore'
 import { GameMode, GameType, type GameSettings } from '@/app/features/MemoryGame/types.d'
 
 export interface GameFormProps {
