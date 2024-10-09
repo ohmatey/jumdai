@@ -6,12 +6,7 @@ import {
 import { GameMode, GameType, type GameSettings } from '@/app/features/MemoryGame/types.d'
 
 export interface GameFormProps {
-  onSubmit: (data: {
-    gameType: GameSettings['gameType']
-    gameMode: GameSettings['gameMode']
-    gameLevel: GameSettings['gameLevel']
-    languageMode: GameSettings['languageMode']
-  }) => void
+  onSubmit: (data: GameSettings) => void
   defaultValues: GameSettings
 }
 
