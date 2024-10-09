@@ -4,7 +4,8 @@ import { useEffect } from 'react'
 
 import { useMemoryGame, MemoryGameProvider } from './useMemoryGame'
 import AlphabetCard from '@/app/modules/alphabet/components/AlphabetCard'
-import type { GameSettings } from './types'
+import { defaultInitState } from './memoryGameStore'
+import type { GameState } from './types'
 
 const CurrentStep = () => {
   const {
@@ -113,12 +114,14 @@ const StepHistory = () => {
 }
 
 export interface MemoryGameProps {
-  settings?: GameSettings
+  gameState: GameState
 }
 
-const MemoryGame = () => {
+const MemoryGame = ({
+  gameState = defaultInitState
+}: MemoryGameProps) => {
   return (
-    <MemoryGameProvider>
+    <MemoryGameProvider gameState={gameState}>
       <div className='flex flex-col items-center container mx-auto'>
         <SettingsBox />
 

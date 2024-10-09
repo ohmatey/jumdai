@@ -3,6 +3,7 @@
 import { type ReactNode, createContext, useRef, useContext } from 'react'
 import { useStore } from 'zustand'
 
+import { type GameState } from './types'
 import { type MemoryGameStore, createMemoryGameStore } from './memoryGameStore'
 
 export type MemoryGameApi = ReturnType<typeof createMemoryGameStore>
@@ -12,15 +13,17 @@ export const MemoryGameContext = createContext<MemoryGameApi | undefined>(
 )
 
 export interface MemoryGameProviderProps {
+  gameState?: GameState
   children: ReactNode
 }
 
 export const MemoryGameProvider = ({
+  gameState,
   children,
 }: MemoryGameProviderProps) => {
   const storeRef = useRef<MemoryGameApi>()
   if (!storeRef.current) {
-    storeRef.current = createMemoryGameStore()
+    storeRef.current = createMemoryGameStore(gameState)
   }
 
   return (

@@ -9,7 +9,8 @@ import {
   type GameSettings,
   type Step,
   type StepHistory,
-  GameMode
+  GameMode,
+  GameType,
 } from './types.d'
 
 export type MemoryGameActions = {
@@ -29,7 +30,7 @@ export const defaultInitState: GameState = {
   steps: [],
   alphabet: thaiAlphabet,
   settings: {
-    gameType: 'alphabet',
+    gameType: GameType.Alphabet,
     gameMode: GameMode.Sequence,
     gameLevel: 'easy',
     languageMode: 'thai',
@@ -80,7 +81,7 @@ const makeSequenceStep = (state: GameState, attempted?: ThaiAlphabet): Step => {
 }
 
 // attempted?: ThaiAlphabet TODO - Fix this
-const makeRandomStep = (state: GameState, ): Step => {
+const makeRandomStep = (state: GameState): Step => {
   const randomNumbers = generateUniqueNumbers(state.settings.numberOfOptions as number, state.alphabet.length)
 
   const randomOptions = randomNumbers.map((number) => {
@@ -119,7 +120,7 @@ export const createMemoryGameStore = (
     ...initState,
     startGame: (gameState: GameState = initState) => set(() => {
       const newStep = makeNewStep(gameState)
-      console.log(newStep, 'newStep')
+
       return {
         ...initState,
         ...gameState,

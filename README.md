@@ -18,6 +18,8 @@ Jumd.ai is an AI integrated Thai language learning app to help language learners
 - [ ] Add setting for number of rounds in random mode
 - [x] Track points
   - [ ] Start points == number of options, reduce win points per incorrect answer
+- [ ] Buy hints
+  - [ ] Users can purchase hints with points to recieve an guidance
 - [ ] Give achievements
   - [ ] Finish sequence
   - [ ] Finish Sequence with no errors

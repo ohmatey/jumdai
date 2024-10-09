@@ -17,13 +17,18 @@ export interface StepHistory extends Step {
   rewards?: Reward[]
 }
 
+export enum GameType {
+  Alphabet = 'alphabet',
+  Word = 'word',
+}
+
 export enum GameMode {
   Sequence = 'sequence',
   Random = 'random',
 }
 
 export interface GameSettings {
-  gameType: 'alphabet' | 'word'
+  gameType: GameType
   gameMode: GameMode
   gameLevel: 'easy' | 'medium' | 'hard'
   languageMode: 'thai' | 'english'

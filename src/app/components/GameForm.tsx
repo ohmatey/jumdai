@@ -3,7 +3,8 @@ import {
   useForm,
 } from 'react-hook-form'
 
-import { GameMode, type GameSettings } from '@/app/features/MemoryGame/types.d'
+import { defaultInitState } from '../features/MemoryGame/memoryGameStore'
+import { GameMode, GameType, type GameSettings } from '@/app/features/MemoryGame/types.d'
 
 export interface GameFormProps {
   onSubmit: (data: {
@@ -18,7 +19,7 @@ export interface GameFormProps {
 const GameForm = ({
   onSubmit,
   defaultValues: {
-    gameType = 'alphabet',
+    gameType = GameType.Alphabet,
     gameMode = GameMode.Random,
     gameLevel = 'easy',
     languageMode = 'thai',
