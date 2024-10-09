@@ -96,14 +96,12 @@ const StepHistory = () => {
             {settings.languageMode === 'thai' ? (
               <div className='flex flex-col items-center'>
                 <p className='text-4xl font-bold'>{step.prompt.alphabet}</p>
-                <p
-                  className='text-2xl text-center'
-                >{step.attempt.romanTransliterationPrefix} {step.attempt.romanTransliteration}</p>
+                <p className='text-2xl text-center'>{step.attempt.romanTransliterationPrefix} {step.attempt.romanTransliteration}</p>
               </div>
             ) : (
               <div className='flex flex-col items-center'>
-                <p className='text-4xl font-bold'>{step.prompt.romanTransliterationPrefix} {step.prompt.romanTransliteration}</p>
-                <p>{step.attempt?.alphabet}</p>
+                <p className='text-2xl font-bold'>{step.prompt.romanTransliterationPrefix} {step.prompt.romanTransliteration}</p>
+                <p className='text-4xl text-center'>{step.attempt?.alphabet}</p>
               </div>
             )}
           </div>
