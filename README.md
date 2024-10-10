@@ -19,6 +19,10 @@ Games
   - [ ] Finish Sequence with no errors
   - [ ] New top streak
   - [ ] Correct streaks 3, 5, 10, 20, 30, 44
+- [ ] Test with different fonts
+  - [ ] Looped
+  - [ ] No loop(challenge)
+  - [ ] Handwritten?
 - [ ] Add vowels
   - [ ] Display vowels in Alphabet page
   - [ ] Include in games

@@ -1,12 +1,13 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 
 import type { GameSettings } from '@/app/features/MemoryGame/types'
 import MemoryGame from '@/app/features/MemoryGame'
 import { defaultInitState } from '@/app/features/MemoryGame/memoryGameStore'
 
 const GamePage = () => {
+  const router = useRouter()
   const searchParams = useSearchParams()
 
   const numberOfOptions = parseInt(searchParams.get('number-options') || '')
@@ -19,6 +20,12 @@ const GamePage = () => {
     numberOfOptions: numberOfOptions as GameSettings['numberOfOptions'],
   }
 
+  const handleEndGame = () => {
+    console.info('Save game')
+
+    router.push('/')
+  }
+
   return (
     <div className='container mx-auto p-4'>
       <MemoryGame
@@ -29,7 +36,7 @@ const GamePage = () => {
             ...gameSettings
           }
         }}
-        // onEndGame={() => setStarted(false)}
+        onEndGame={handleEndGame}
       />
     </div>
   )

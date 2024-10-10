@@ -20,6 +20,7 @@ const CurrentStep = () => {
     if (!started) {
       startGame()
     }
+    console.log('asd')
   }, [startGame, started])
 
   if (!currentStep || !currentStep.prompt) {
@@ -36,10 +37,14 @@ const CurrentStep = () => {
 
       <div className='flex flex-wrap gap-4 justify-center mt-12'>
         {currentStep.options?.map((option, index) => {
+          const handleAttempt = () => {
+            attemptAnswer(option)
+          }
+
           return (
             <button
               key={index}
-              onClick={() => attemptAnswer(option)}
+              onClick={handleAttempt}
               className={'p-4 border border-white font-bold text-4xl'}
             >
               {settings.languageMode === 'thai' ? `${option?.romanTransliterationPrefix} ${option?.romanTransliteration}` : option?.alphabet}
@@ -51,14 +56,30 @@ const CurrentStep = () => {
   )
 }
 
-const SettingsBox = () => {
+interface SettingsBoxProps {
+  onEndGame?: (gameState: GameState) => void
+}
+
+const SettingsBox = ({
+  onEndGame,
+}: SettingsBoxProps) => {
+  const gameState = useMemoryGame(s => s)
+
   const {
     steps = [],
     endGame,
     settings,
-  } = useMemoryGame(s => s)
+  } = gameState
 
   const totalPoints = useMemo(() => getTotalStepPoints(steps), [steps])
+
+  const handleEndGame = () => {
+    endGame()
+    
+    if (onEndGame) {
+      onEndGame(gameState)
+    }
+  }
 
   return (
     <div className='flex mb-6 justify-between w-full'>
@@ -73,7 +94,7 @@ const SettingsBox = () => {
 
       <div>
         <button
-          onClick={endGame}
+          onClick={handleEndGame}
           className='p-2 border font-bold text-l mt-2 border-gray-500'
         >End Game</button>
       </div>
@@ -117,15 +138,17 @@ const StepHistory = () => {
 
 export interface MemoryGameProps {
   gameState: GameState
+  onEndGame?: (gameState: GameState) => void
 }
 
 const MemoryGame = ({
-  gameState = defaultInitState
+  gameState = defaultInitState,
+  onEndGame,
 }: MemoryGameProps) => {
   return (
     <MemoryGameProvider gameState={gameState}>
       <div className='flex flex-col items-center container mx-auto'>
-        <SettingsBox />
+        <SettingsBox onEndGame={onEndGame} />
 
         <CurrentStep />
 
