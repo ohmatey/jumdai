@@ -38,6 +38,22 @@ export const defaultInitState: GameState = {
   }
 }
 
+export const getCorrectAnswer = (currentStep?: Step) => currentStep?.options?.find(option => {
+  if (!currentStep || !currentStep.prompt) {
+    throw new Error('Prompt or currentStep is not defined')
+  }
+
+  return option.alphabet === currentStep.prompt.alphabet
+})
+
+export const checkIsCorrectAttempt = (currentStep?: Step, attempted?: ThaiAlphabet) => {
+  return currentStep?.prompt.alphabet === attempted?.alphabet
+}
+
+export const getTotalStepPoints = (steps: StepHistory[] = []) => {
+  return steps.reduce((acc, step) => acc + step.points, 0)
+}
+
 const makeRandomOptions = (state: GameState, prompt?: ThaiAlphabet): ThaiAlphabet[] => {
   const { numberOfOptions = 3 } = state.settings as GameSettings
 
@@ -60,7 +76,7 @@ const makeRandomOptions = (state: GameState, prompt?: ThaiAlphabet): ThaiAlphabe
 }
 
 const makeSequenceStep = (state: GameState, attempted?: ThaiAlphabet): Step => {
-  // Ensure the alphabet array is sorted once (if needed)
+  // Ensure the alphabet array is sorted once
   const sortedAlphabet = [...state.alphabet].sort((a, b) => a.order - b.order)
 
   let nextAlphabetIndex: number = 0
@@ -74,14 +90,26 @@ const makeSequenceStep = (state: GameState, attempted?: ThaiAlphabet): Step => {
   // Generate random options for the current prompt
   const randomOptions = makeRandomOptions(state, nextAlphabet)
 
+  if (!state?.currentStep) {
+    console.log('asd')
+    return {
+      prompt: nextAlphabet,
+      options: randomOptions,
+      points: state?.currentStep?.points || randomOptions.length
+    }
+  }
+
+  const isCorrect = checkIsCorrectAttempt(state?.currentStep, attempted)
+
   return {
-    prompt: nextAlphabet,
-    options: randomOptions,
+    prompt: isCorrect ? nextAlphabet : state.currentStep.prompt,
+    options: isCorrect ? randomOptions : state.currentStep.options,
+    points: state.currentStep.points + (isCorrect ? 0 : -1),
   }
 }
 
 // attempted?: ThaiAlphabet TODO - Fix this
-const makeRandomStep = (state: GameState): Step => {
+const makeRandomStep = (state: GameState, attempted?: ThaiAlphabet): Step => {
   const randomNumbers = generateUniqueNumbers(state.settings.numberOfOptions as number, state.alphabet.length)
 
   const randomOptions = randomNumbers.map((number) => {
@@ -92,13 +120,21 @@ const makeRandomStep = (state: GameState): Step => {
 
   const nextRandomPrompt = randomOptions[randomPromptIndex]
 
-  // if (nextRandomPrompt.alphabet === attempted?.alphabet) {
-  //   return makeRandomStep(state, attempted)
-  // }
+  // Generate random options for the first prompt
+  if (!state?.currentStep || attempted?.alphabet) {
+    return {
+      prompt: nextRandomPrompt,
+      options: randomOptions,
+      points: state?.currentStep?.points || randomOptions.length
+    }
+  }
+
+  const isCorrect = checkIsCorrectAttempt(state?.currentStep, attempted)
   
   return {
-    prompt: nextRandomPrompt,
-    options: randomOptions
+    prompt: isCorrect ? nextRandomPrompt : state.currentStep.prompt,
+    options: isCorrect ? randomOptions : state.currentStep.options,
+    points: state.currentStep.points - (isCorrect ? 0 : 1),
   }
 }
 
@@ -107,9 +143,9 @@ const makeNewStep = (state: GameState, attempted?: ThaiAlphabet): Step => {
     case GameMode.Sequence:
       return makeSequenceStep(state, attempted)
     case GameMode.Random:
-      return makeRandomStep(state)
+      return makeRandomStep(state, attempted)
     default:
-      return makeRandomStep(state)
+      return makeRandomStep(state, attempted)
   }
 }
 
@@ -146,12 +182,13 @@ export const createMemoryGameStore = (
         return state // If there's no current step, do nothing
       }
 
-      const isCorrectAttemp = currentStep.prompt.alphabet === attempted.alphabet
+      const isCorrectAttempt = checkIsCorrectAttempt(currentStep, attempted)
 
       const attemptedStep = {
         ...currentStep,
         attempt: attempted,
-        correct: isCorrectAttemp,
+        correct: isCorrectAttempt,
+        points: isCorrectAttempt ? currentStep.points : 0
       }
 
       const newHistory: StepHistory[] = steps ? [
@@ -159,9 +196,12 @@ export const createMemoryGameStore = (
         attemptedStep
       ] : [attemptedStep]
 
-      if (!isCorrectAttemp) {
+      const newStep = makeNewStep(state, attempted)
+
+      if (!isCorrectAttempt) {
         return {
           ...state,
+          currentStep: newStep,
           steps: newHistory
         } as GameState
       }
@@ -179,9 +219,7 @@ export const createMemoryGameStore = (
           settings: state.settings,
         } as GameState
       }
-
-      const newStep = makeNewStep(state, attempted)
-
+      
       return {
         ...state,
         currentStep: newStep,

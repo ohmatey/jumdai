@@ -13,21 +13,13 @@ export interface GameFormProps {
 
 const GameForm = ({
   onSubmit,
-  defaultValues: {
-    gameType = defaultInitState.settings.gameType,
-    gameMode = defaultInitState.settings.gameMode,
-    gameLevel = defaultInitState.settings.gameLevel,
-    languageMode = defaultInitState.settings.languageMode
-  }
+  defaultValues = defaultInitState.settings,
 }: GameFormProps) => {
-  const { handleSubmit, control } = useForm({
-    defaultValues: {
-      gameType,
-      languageMode,
-      gameMode,
-      gameLevel
-    }
+  const { handleSubmit, control, watch } = useForm({
+    defaultValues
   })
+
+  const gameMode = watch('gameMode')
 
   return (
     <form className='flex flex-col gap-4 items-center' onSubmit={handleSubmit(onSubmit)}>
@@ -72,6 +64,23 @@ const GameForm = ({
           </label>
         )}
       />
+
+      {gameMode === 'random' && (
+        <Controller
+          name='numberOfOptions'
+          control={control}
+          render={({ field }) => (
+            <label>
+              <span className='mr-2'>Number of Options</span>
+              <select {...field}>
+                <option value='3'>3</option>
+                <option value='5'>5</option>
+                <option value='8'>8</option>
+              </select>
+            </label>
+          )}
+        />
+      )}
 
       <Controller
         name='gameLevel'

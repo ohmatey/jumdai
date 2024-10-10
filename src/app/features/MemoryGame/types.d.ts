@@ -8,6 +8,7 @@ export type Reward = {
 export interface Step {
   prompt: ThaiAlphabet
   options?: ThaiAlphabet[]
+  points: number
 }
 
 export interface StepHistory extends Step {

@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { useMemoryGame, MemoryGameProvider } from './useMemoryGame'
 import AlphabetCard from '@/app/modules/alphabet/components/AlphabetCard'
-import { defaultInitState } from './memoryGameStore'
+import { defaultInitState, getTotalStepPoints } from './memoryGameStore'
 import type { GameState } from './types'
 
 const CurrentStep = () => {
@@ -58,10 +58,12 @@ const SettingsBox = () => {
     settings,
   } = useMemoryGame(s => s)
 
+  const totalPoints = useMemo(() => getTotalStepPoints(steps), [steps])
+
   return (
     <div className='flex mb-6 justify-between w-full'>
       <div>
-        <p className='text-4xl font-bold mb-1'>{steps.reduce((acc, step) => acc + (step.correct ? 1 : 0), 0)} Points</p>
+        <p className='text-4xl font-bold mb-1'>{totalPoints} Points</p>
         <p>{steps.filter((step) => step.correct).length}/{steps.length + 1} Correct Attempts</p>
 
         <div className='flex flex-col gap-4'>
@@ -92,10 +94,10 @@ const StepHistory = () => {
     <div className='flex flex-col gap-4'>
       {recentSteps.map((step, index) => {
         return (
-          <div key={index} className={`p-4 py-8 border-2 max-w-64 w-full rounded-2xl ${step.correct ? 'border-green-500' : 'border-red-500'} ${index === 0 ? 'opacity-100' : index === 1 ? 'opacity-50' : 'opacity-30'}`}>
+          <div key={index} className={`p-4 py-8 text-center border-2 max-w-64 w-full rounded-2xl ${step.correct ? 'border-green-500' : 'border-red-500'} ${index === 0 ? 'opacity-100' : index === 1 ? 'opacity-50' : 'opacity-30'}`}>
             {settings.languageMode === 'thai' ? (
               <div className='flex flex-col items-center'>
-                <p className='text-4xl font-bold'>{step.prompt.alphabet}</p>
+                <p className='text-6xl font-bold'>{step.prompt.alphabet}</p>
                 <p className='text-2xl text-center'>{step.attempt.romanTransliterationPrefix} {step.attempt.romanTransliteration}</p>
               </div>
             ) : (
@@ -104,6 +106,8 @@ const StepHistory = () => {
                 <p className='text-4xl text-center'>{step.attempt?.alphabet}</p>
               </div>
             )}
+
+            <p className='text-2xl font-bold mt-4'>{step.points} Points</p>
           </div>
         )
       })}

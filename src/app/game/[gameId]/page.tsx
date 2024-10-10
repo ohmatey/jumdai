@@ -9,11 +9,14 @@ import { defaultInitState } from '@/app/features/MemoryGame/memoryGameStore'
 const GamePage = () => {
   const searchParams = useSearchParams()
 
+  const numberOfOptions = parseInt(searchParams.get('number-options') || '')
+
   const gameSettings: GameSettings = {
     gameMode: searchParams.get('mode') as GameSettings['gameMode'],
     gameLevel: searchParams.get('level') as GameSettings['gameLevel'],
     gameType: searchParams.get('type') as GameSettings['gameType'],
-    languageMode: searchParams.get('languageMode') as GameSettings['languageMode'],
+    languageMode: searchParams.get('language-mode') as GameSettings['languageMode'],
+    numberOfOptions: numberOfOptions as GameSettings['numberOfOptions'],
   }
 
   return (
