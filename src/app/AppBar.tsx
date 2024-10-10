@@ -6,7 +6,7 @@ const AppBar = () => {
       <div className='container mx-auto flex items-center'>
         <Link href='/'>
           <div className='cursor-pointer px-4 py-1 flex items-center rounded-xl hover:bg-gray-100'>
-            <h1>JumD.ai</h1>
+            <h1>Jumdai</h1>
           </div>
         </Link>
 

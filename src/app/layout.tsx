@@ -10,7 +10,7 @@ const font = Bai_Jamjuree({
 })
 
 export const metadata: Metadata = {
-  title: 'JumD.ai',
+  title: 'Jumdai',
   description: 'Your favorite Thai language learning app',
 }
 
