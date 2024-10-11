@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation'
 
 import type { GameSettings } from './features/MemoryGame/types'
-
 import GameForm from './components/GameForm'
 import { defaultInitState } from './features/MemoryGame/memoryGameStore'
 
@@ -16,6 +15,7 @@ const Home = () => {
     gameType,
     languageMode,
     numberOfOptions,
+    inputMode,
   }: GameSettings) => {
     const randomGameId = Math.floor(Math.random() * 1000)
 
@@ -29,6 +29,10 @@ const Home = () => {
 
     if (numberOfOptions) {
       params.append('number-options', numberOfOptions.toString())
+    }
+
+    if (inputMode) {
+      params.append('input-mode', inputMode)
     }
 
     router.push(`/game/${randomGameId}?${params.toString()}`)

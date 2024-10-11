@@ -4,7 +4,10 @@ import {
 } from 'react-hook-form'
 
 import { defaultInitState } from '../features/MemoryGame/memoryGameStore'
-import { type GameSettings } from '@/app/features/MemoryGame/types.d'
+import {
+  type GameSettings,
+  InputMode,
+} from '@/app/features/MemoryGame/types.d'
 
 export interface GameFormProps {
   onSubmit: (data: GameSettings) => void
@@ -15,11 +18,15 @@ const GameForm = ({
   onSubmit,
   defaultValues = defaultInitState.settings,
 }: GameFormProps) => {
-  const { handleSubmit, control, watch } = useForm({
-    defaultValues
+  const { handleSubmit, control, watch } = useForm<GameSettings>({
+    defaultValues: {
+      ...defaultInitState.settings,
+      ...defaultValues,
+    }
   })
 
   const gameMode = watch('gameMode')
+  const languageMode = watch('languageMode')
 
   return (
     <form className='flex flex-col gap-4 items-center' onSubmit={handleSubmit(onSubmit)}>
@@ -50,6 +57,38 @@ const GameForm = ({
           </label>
         )}
       />
+
+      {/* free text input mode checkbox */}
+      {languageMode === 'english' && (
+        <Controller
+          name='inputMode'
+          control={control}
+          defaultValue={InputMode.Options}
+          render={({ field }) => {
+            const {
+              onChange,
+              value,
+              ...rest
+            } = field
+
+            const isChecked = value === InputMode.Input
+
+            return (
+              <label>
+                <input
+                  type='checkbox'
+                  {...rest}
+                  checked={isChecked}
+                  onChange={(e) => {
+                    onChange(e.target.checked ? InputMode.Input : InputMode.Options)
+                  }}
+                />
+                <span className='ml-2'>Free Text Input Mode</span>
+              </label>
+            )
+          }}
+        />
+      )}
 
       <Controller
         name='gameMode'

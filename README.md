@@ -12,6 +12,11 @@ Games
 - [x] Update new game page to use settings passed from url
 - [x] Track points
   - [x] Start points == number of options, reduce win points per incorrect answer
+- [ ] modes
+  - [x] thai to eng
+  - [x] eng to thai
+  - [x] Select options
+  - [x] Text Input thai character
 - [ ] Buy hints
   - [ ] Users can purchase hints with points to recieve guidance
 - [ ] Give achievements

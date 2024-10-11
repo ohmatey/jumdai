@@ -5,10 +5,16 @@ export type Reward = {
   points: number
 }
 
+export enum InputMode {
+  Options = 'options',
+  Input = 'input',
+}
+
 export interface Step {
   prompt: ThaiAlphabet
   options?: ThaiAlphabet[]
   points: number
+  inputMode: InputMode
 }
 
 export interface StepHistory extends Step {
@@ -28,12 +34,24 @@ export enum GameMode {
   Random = 'random',
 }
 
+export enum GameLevel {
+  Easy = 'easy',
+  Medium = 'medium',
+  Hard = 'hard',
+}
+
+export enum LanguageMode {
+  Thai = 'thai',
+  English = 'english',
+}
+
 export interface GameSettings {
   gameType: GameType
   gameMode: GameMode
-  gameLevel: 'easy' | 'medium' | 'hard'
-  languageMode: 'thai' | 'english'
+  gameLevel: GameLevel
+  languageMode: LanguageMode
   numberOfOptions?: number
+  inputMode: InputMode
 }
 
 export interface GameState {

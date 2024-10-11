@@ -1,14 +1,100 @@
 'use client'
 
 import { useEffect, useMemo } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 
 import { useMemoryGame, MemoryGameProvider } from './useMemoryGame'
 import AlphabetCard from '@/app/modules/alphabet/components/AlphabetCard'
 import { defaultInitState, getTotalStepPoints } from './memoryGameStore'
-import type { GameState } from './types'
+import {
+  type GameState,
+  InputMode,
+} from './types.d'
+import type { ThaiAlphabet } from '@/app/types'
+
+export interface GameInputFormProps {
+  onSubmit: (attempt: ThaiAlphabet) => void
+  alphabet: ThaiAlphabet[]
+  maxLength?: number
+}
+
+const GameInputForm = ({
+  onSubmit,
+  alphabet,
+  maxLength = 1,
+}: GameInputFormProps) => {
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm<{ answer: string }>({
+    mode: 'onChange'
+  })
+
+  const handleSubmitForm = ({
+    answer
+  }: {
+    answer: string
+  }) => {
+    const isInAlphabet = alphabet.find((a) => a.alphabet === answer)
+
+    if (isInAlphabet) {
+      onSubmit(isInAlphabet)
+
+      reset()
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit(handleSubmitForm)}>
+      <div className='flex flex-col items-center'>
+        <div className='flex flex-row items-center gap-4'>
+          <Controller
+            name='answer'
+            control={control}
+            defaultValue=''
+            rules={{
+              required: true,
+              validate: (value) => {
+                if (value.length > maxLength) {
+                  return 'Too many characters'
+                }
+
+                const isInAlphabet = alphabet.find((a) => a.alphabet === value)
+                
+                if (!isInAlphabet) {
+                  return 'Not in alphabet'
+                }
+              }
+            }}
+            render={({ field }) => (
+              <div>
+                <input
+                  {...field}
+                  autoFocus
+                  className='p-4 border border-white font-bold text-4xl text-center max-w-32 w-full'
+                />
+              </div>
+            )}
+          />
+
+          <button
+            className='px-6 py-4 border font-bold text-l mt-2 border-gray-500 hover:bg-gray-100'
+          >Submit</button>
+        </div>
+
+        {errors.answer && (
+          <p className='text-red-500'>{errors.answer.message}</p>
+        )}
+      </div>
+    </form>
+  )
+}
 
 const CurrentStep = () => {
   const {
+    alphabet,
     started,
     currentStep,
     settings,
@@ -16,11 +102,18 @@ const CurrentStep = () => {
     startGame,
   } = useMemoryGame(s => s)
 
+  const {
+    inputMode,
+    languageMode,
+  } = settings
+
+  const isOptionsMode = inputMode === InputMode.Options
+  const isInputMode = inputMode === InputMode.Input
+
   useEffect(() => {
     if (!started) {
       startGame()
     }
-    console.log('asd')
   }, [startGame, started])
 
   if (!currentStep || !currentStep.prompt) {
@@ -33,25 +126,37 @@ const CurrentStep = () => {
 
   return (
     <div className='flex flex-col items-center'>
-      <AlphabetCard alphabet={currentStep.prompt} languageMode={settings.languageMode} />
+      <AlphabetCard alphabet={currentStep.prompt} languageMode={languageMode} />
 
-      <div className='flex flex-wrap gap-4 justify-center mt-12'>
-        {currentStep.options?.map((option, index) => {
-          const handleAttempt = () => {
-            attemptAnswer(option)
-          }
+      {isInputMode && (
+        <div className='flex flex-col items-center mt-12'>
+          <GameInputForm
+            onSubmit={attemptAnswer}
+            alphabet={alphabet}
+            maxLength={currentStep.prompt.alphabet.length}
+          />
+        </div>
+      )}
 
-          return (
-            <button
-              key={index}
-              onClick={handleAttempt}
-              className={'p-4 border border-white font-bold text-4xl'}
-            >
-              {settings.languageMode === 'thai' ? `${option?.romanTransliterationPrefix} ${option?.romanTransliteration}` : option?.alphabet}
-            </button>
-          )
-        })}
-      </div>
+      {isOptionsMode && (
+        <div className='flex flex-wrap gap-4 justify-center mt-12'>
+          {currentStep.options?.map((option, index) => {
+            const handleAttempt = () => {
+              attemptAnswer(option)
+            }
+
+            return (
+              <button
+                key={index}
+                onClick={handleAttempt}
+                className={'p-4 border border-white font-bold text-4xl'}
+              >
+                {settings.languageMode === 'thai' ? `${option?.romanTransliterationPrefix} ${option?.romanTransliteration}` : option?.alphabet}
+              </button>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

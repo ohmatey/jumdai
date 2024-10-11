@@ -1,5 +1,5 @@
 import { createMemoryGameStore, defaultInitState, getCorrectAnswer } from './memoryGameStore'
-import { type GameState, GameMode } from './types'
+import { type GameState, GameMode, InputMode } from './types'
 import type { ThaiAlphabet } from '@/app/types'
 import thaiAlphabet from '@/app/utils/thaiAlphabet'
 
@@ -25,6 +25,14 @@ const customRandomInitState: GameState = {
   }
 }
 
+const inputModeInitState: GameState = {
+  ...customInitState,
+  settings: {
+    ...customInitState.settings,
+    inputMode: InputMode.Input
+  }
+}
+
 const getWrongAnswer = (currentStep: ThaiAlphabet) => {
   const wrongAnswer = thaiAlphabet.find(alphabet => alphabet.alphabet !== currentStep.alphabet)
 
@@ -46,7 +54,9 @@ describe('MemoryGame Store', () => {
   })
 
   test('initial state should match defaultInitState', () => {
-    expect(store.getState()).toMatchObject({
+    const storeState = store.getState()
+
+    expect(storeState).toMatchObject({
       ...customInitState,
       settings: defaultInitState.settings,
       started: false,
@@ -54,7 +64,7 @@ describe('MemoryGame Store', () => {
       steps: []
     })
 
-    expect(store.getState().alphabet).toEqual(customInitState.alphabet)
+    expect(storeState.alphabet).toEqual(customInitState.alphabet)
   })
 
   test('startGame should update started to true', () => {
@@ -265,5 +275,35 @@ describe('MemoryGame Store', () => {
     expect(steps?.length).toBe(1)
     expect(steps?.[0].points).toBe(0)
     expect(nextCurrentStep?.points).toBe(currentStep.points - 1)
+  })
+
+  // test input mode
+  test('input mode should be handled correctly', () => {
+    store = createStore(inputModeInitState)
+    store.getState().startGame(inputModeInitState)
+
+    const { currentStep, settings } = store.getState()
+
+    if (!currentStep) {
+      throw new Error('currentStep is not defined')
+    }
+
+    expect(settings.inputMode).toBe(InputMode.Input)
+    expect(currentStep.inputMode).toBe(InputMode.Input)
+
+    const correctAnswer = currentStep.prompt
+
+    store.getState().attemptAnswer(correctAnswer)
+
+    const { steps, currentStep: nextCurrentStep } = store.getState()
+
+    if (!nextCurrentStep) {
+      throw new Error('nextCurrentStep is not defined')
+    }
+
+    expect(nextCurrentStep.inputMode).toBe(InputMode.Input)
+
+    expect(steps?.length).toBe(1)
+    expect(steps?.[0].correct).toBe(true)
   })
 })
