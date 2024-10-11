@@ -1,7 +1,10 @@
 import Image from 'next/image'
 
-import type { GameSettings } from '@/app/features/MemoryGame/types'
-import type { ThaiAlphabet } from '@/app/types'
+import {
+  type GameSettings,
+  LanguageMode,
+} from '@/app/features/MemoryGame/types.d'
+import type { ThaiAlphabet } from '@/app/types.d'
 
 export interface AlphabetCardProps {
   alphabet: ThaiAlphabet
@@ -15,7 +18,7 @@ export interface AlphabetCardProps {
 
 const AlphabetCard = ({
   alphabet,
-  languageMode = 'thai',
+  languageMode = LanguageMode.Thai,
   showImage = false,
   showType = false,
   showRomanTransliteration = false,
