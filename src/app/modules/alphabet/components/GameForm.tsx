@@ -66,9 +66,7 @@ const GameForm = ({
                       onChange(value.filter((item) => item !== type))
                     }
                   }}
-                >
-                  {type}
-                </Checkbox>
+                />
               )
             }}
           />
