@@ -10,7 +10,7 @@ import {
   type GameState,
   InputMode,
 } from './types.d'
-import type { ThaiAlphabet } from '@/app/types'
+import { type ThaiAlphabet, ThaiAlphabetType } from '@/app/types.d'
 
 export interface GameInputFormProps {
   onSubmit: (attempt: ThaiAlphabet) => void
@@ -110,6 +110,10 @@ const CurrentStep = () => {
   const isOptionsMode = inputMode === InputMode.Options
   const isInputMode = inputMode === InputMode.Input
 
+  const isCurrentStepVowel = useMemo(() => {
+    return currentStep?.prompt?.type === ThaiAlphabetType.Vowel
+  }, [currentStep])
+
   useEffect(() => {
     if (!started) {
       startGame()
@@ -151,7 +155,10 @@ const CurrentStep = () => {
                 onClick={handleAttempt}
                 className={'p-4 border border-white font-bold text-4xl'}
               >
-                {settings.languageMode === 'thai' ? `${option?.romanTransliterationPrefix} ${option?.romanTransliteration}` : option?.alphabet}
+                {settings.languageMode === 'thai' ?
+                  `${!isCurrentStepVowel ? option?.romanTransliterationPrefix : ''} ${option?.romanTransliteration}` :
+                  option?.alphabet
+                }
               </button>
             )
           })}
@@ -252,15 +259,23 @@ const MemoryGame = ({
 }: MemoryGameProps) => {
   return (
     <MemoryGameProvider gameState={gameState}>
-      <div className='flex flex-col items-center container mx-auto'>
-        <SettingsBox onEndGame={onEndGame} />
+      {!gameState.started && (
+        <div className='flex flex-col items-center container mx-auto'>
+          <SettingsBox onEndGame={onEndGame} />
 
-        <CurrentStep />
+          {!gameState.finished && <CurrentStep />}
+          {gameState.finished && (
+            <div className='flex flex-col items-center'>
+              <p className='text-4xl font-bold'>Game Over</p>
+              <p className='text-2xl'>You scored {getTotalStepPoints(gameState.steps)} points</p>
+            </div>
+          )}
 
-        <div className='overflow-x auto mt-12'>
-          <StepHistory />
+          <div className='overflow-x auto mt-12'>
+            <StepHistory />
+          </div>
         </div>
-      </div>
+      )}
     </MemoryGameProvider>
   )
 }

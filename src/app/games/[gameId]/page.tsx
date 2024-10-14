@@ -19,6 +19,7 @@ const GamePage = () => {
     languageMode: searchParams.get('language-mode') as GameSettings['languageMode'],
     numberOfOptions: numberOfOptions as GameSettings['numberOfOptions'],
     inputMode: searchParams.get('input-mode') as GameSettings['inputMode'],
+    thaiAlphabetTypes: searchParams.getAll('alphabet-type') as GameSettings['thaiAlphabetTypes'],
   }
 
   const handleEndGame = () => {

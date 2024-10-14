@@ -1,13 +1,16 @@
 import {
   Controller,
   useForm,
+  useFieldArray,
 } from 'react-hook-form'
 
-import { defaultInitState } from '../features/MemoryGame/memoryGameStore'
+import { defaultInitState } from '@/app/features/MemoryGame/memoryGameStore'
 import {
   type GameSettings,
   InputMode,
 } from '@/app/features/MemoryGame/types.d'
+import Checkbox from '@/app/components/Checkbox'
+import { ThaiAlphabetType } from '@/app/types.d'
 
 export interface GameFormProps {
   onSubmit: (data: GameSettings) => void
@@ -25,11 +28,53 @@ const GameForm = ({
     }
   })
 
+  const { fields } = useFieldArray({
+    control,
+    name: 'thaiAlphabetTypes',
+  })
+
   const gameMode = watch('gameMode')
   const languageMode = watch('languageMode')
 
   return (
     <form className='flex flex-col gap-4 items-center' onSubmit={handleSubmit(onSubmit)}>
+      <div className='flex flex-wrap gap-4'>
+        {Object.values(ThaiAlphabetType).map((type) => (
+          <Controller
+            key={type}
+            name='thaiAlphabetTypes'
+            control={control}
+            defaultValue={defaultValues.thaiAlphabetTypes}
+            render={({ field }) => {
+              const {
+                onChange,
+                value,
+                ...rest
+              } = field
+
+              const isChecked = value.includes(type)
+
+              return (
+                <Checkbox
+                  {...rest}
+                  label={type}
+                  checked={isChecked}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    if (e.target.checked) {
+                      onChange([...value, type])
+                    } else {
+                      onChange(value.filter((item) => item !== type))
+                    }
+                  }}
+                >
+                  {type}
+                </Checkbox>
+              )
+            }}
+          />
+        ))}
+      </div>
+
       <Controller
         name='gameType'
         control={control}

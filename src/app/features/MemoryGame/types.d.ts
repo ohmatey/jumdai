@@ -52,6 +52,7 @@ export interface GameSettings {
   languageMode: LanguageMode
   numberOfOptions?: number
   inputMode: InputMode
+  thaiAlphabetTypes: ThaiAlphabetType[]
 }
 
 export interface GameState {

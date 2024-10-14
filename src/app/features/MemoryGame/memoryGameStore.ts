@@ -1,7 +1,7 @@
 // src/stores/MemoryGame-store.ts
 import { createStore } from 'zustand/vanilla'
 
-import type { ThaiAlphabet } from '@/app/types'
+import { type ThaiAlphabet, ThaiAlphabetType } from '@/app/types.d'
 import thaiAlphabet from '@/app/utils/thaiAlphabet'
 import generateUniqueNumbers from '../../utils/generateUniqueNumbers'
 import {
@@ -39,14 +39,21 @@ export const defaultInitState: GameState = {
     languageMode: LanguageMode.Thai,
     numberOfOptions: 3,
     inputMode: InputMode.Options,
+    thaiAlphabetTypes: Object.values(ThaiAlphabetType),
   }
+}
+
+export const filterAlphabetByTypes = (alphabet: ThaiAlphabet[], types: ThaiAlphabetType[]) => {
+  return [...alphabet].filter((item) => {
+    return types.includes(item.type)
+  })
 }
 
 export const getCorrectAnswer = (currentStep?: Step) => currentStep?.options?.find(option => {
   if (!currentStep || !currentStep.prompt) {
     throw new Error('Prompt or currentStep is not defined')
   }
-
+  
   return option.alphabet === currentStep.prompt.alphabet
 })
 
@@ -58,13 +65,28 @@ export const getTotalStepPoints = (steps: StepHistory[] = []) => {
   return steps.reduce((acc, step) => acc + step.points, 0)
 }
 
-const makeRandomOptions = (state: GameState, prompt?: ThaiAlphabet): ThaiAlphabet[] => {
-  const { numberOfOptions = 3 } = state.settings as GameSettings
+const makeRandomPrompt = (state: GameState): ThaiAlphabet => {
+  const {
+    alphabet,
+    settings,
+  } = state
 
-  let availableAlphabets = state.alphabet
+  const randomIndex = Math.floor(Math.random() * alphabet.length)
+
+  return alphabet[randomIndex]
+}
+
+const makeRandomOptions = (state: GameState, prompt?: ThaiAlphabet): ThaiAlphabet[] => {
+  const {
+    alphabet,
+    settings,
+  } = state
+  const { numberOfOptions = 3 } = settings as GameSettings
+
+  let availableAlphabets = alphabet
 
   if (prompt) {
-    availableAlphabets = state.alphabet.filter(alphabet => alphabet.alphabet !== prompt.alphabet)
+    availableAlphabets = alphabet.filter(alphabet => alphabet.alphabet !== prompt.alphabet)
   }
 
   const randomNumbers = generateUniqueNumbers(numberOfOptions - 1, availableAlphabets.length)
@@ -89,8 +111,9 @@ const makeSequenceStep = (state: GameState, attempted?: ThaiAlphabet): Step => {
   // Ensure the alphabet array is sorted once
   const sortedAlphabet = [...alphabet].sort((a, b) => a.order - b.order)
 
+  // Find the next alphabet to prompt
+  // If there's no attempted alphabet, prompt the first alphabet
   let nextAlphabetIndex: number = 0
-
   if (attempted) {
     nextAlphabetIndex = sortedAlphabet.findIndex((alphabet) => alphabet.alphabet === attempted.alphabet) + 1
   }
@@ -119,6 +142,14 @@ const makeSequenceStep = (state: GameState, attempted?: ThaiAlphabet): Step => {
   }
 }
 
+const getRandomAlphabet = (alphabet: ThaiAlphabet[], types: ThaiAlphabetType[]) => {
+  const filteredAlphabet = filterAlphabetByTypes(alphabet, types)
+
+  const randomIndex = Math.floor(Math.random() * filteredAlphabet.length)
+
+  return filteredAlphabet[randomIndex]
+}
+
 const makeRandomStep = (state: GameState, attempted?: ThaiAlphabet): Step => {
   const {
     currentStep,
@@ -126,10 +157,10 @@ const makeRandomStep = (state: GameState, attempted?: ThaiAlphabet): Step => {
     settings,
   } = state
 
-  const randomNumbers = generateUniqueNumbers(settings.numberOfOptions as number, alphabet.length)
-
-  const randomOptions = randomNumbers.map((number) => {
-    return alphabet[number]
+  const randomOptions = Array.from({
+    length: settings.numberOfOptions as number
+  }, () => {
+    return getRandomAlphabet(alphabet, settings.thaiAlphabetTypes)
   })
 
   const randomPromptIndex = Math.floor(Math.random() * randomOptions.length)
@@ -173,7 +204,12 @@ export const createMemoryGameStore = (
   return createStore<MemoryGameStore>()((set) => ({
     ...initState,
     startGame: (gameState: GameState = initState) => set(() => {
-      const newStep = makeNewStep(gameState)
+      const filteredAlphabet = filterAlphabetByTypes(gameState.alphabet, gameState.settings.thaiAlphabetTypes)
+
+      const newStep = makeNewStep({
+        ...gameState,
+        alphabet: filteredAlphabet,
+      })
 
       return {
         ...initState,
@@ -196,6 +232,8 @@ export const createMemoryGameStore = (
         alphabet,
       } = state
 
+      const filteredAlphabet = filterAlphabetByTypes(alphabet, settings.thaiAlphabetTypes)
+
       if (!currentStep) {
         return state // If there's no current step, do nothing
       }
@@ -210,7 +248,7 @@ export const createMemoryGameStore = (
       }
 
       const newHistory: StepHistory[] = steps ? [
-        ...steps as StepHistory[] || [],
+        ...steps || [],
         attemptedStep
       ] : [attemptedStep]
 
@@ -226,11 +264,14 @@ export const createMemoryGameStore = (
 
       const isSequenceGameMode = settings.gameMode === 'sequence'
       const correctSteps = newHistory.filter((step) => step.correct)
-      const gameIsOver = !!steps?.length && correctSteps?.length >= alphabet?.length
 
-      if (isSequenceGameMode && gameIsOver) {
+      const correctStapsMatchAlphabet = correctSteps?.length === filteredAlphabet?.length
+
+      if (isSequenceGameMode && correctStapsMatchAlphabet) {
         return {
           ...state,
+          alphabet: filteredAlphabet,
+          currentStep: null,
           started: false,
           finished: true,
           steps: newHistory,
@@ -240,6 +281,7 @@ export const createMemoryGameStore = (
       
       return {
         ...state,
+        alphabet: filteredAlphabet,
         currentStep: newStep,
         steps: newHistory
       } as GameState

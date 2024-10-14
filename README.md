@@ -17,6 +17,7 @@ Games
   - [x] eng to thai
   - [x] Select options
   - [x] Text Input thai character
+- [ ] Update new game UI
 - [ ] Buy hints
   - [ ] Users can purchase hints with points to recieve guidance
 - [ ] Give achievements

@@ -27,7 +27,7 @@ const AlphabetCard = ({
 }: AlphabetCardProps) => {
   return (
     <div className='border-4 mb-4 border-white text-center rounded-xl shadow-md w-full max-w-64 min-h-64'>
-      {showType && <p className='text-md mb-2 text-gray-400'>{alphabet.consonantGroup} {alphabet.isConsonant ? 'Consonant' : 'Vowel'}</p>}
+      {showType && <p className='text-md mb-2 text-gray-400'>{alphabet.consonantGroup} {alphabet.type}</p>}
 
       {(alphabet.imageSrc && showImage) && (
         <div className='flex justify-center px-2'>
@@ -41,7 +41,7 @@ const AlphabetCard = ({
         </div>
       )}
       
-      <div className={`flex justify-center min-h-${showImage ? '32' : '64'} items-center`}>
+      <div className={`flex justify-center min-h-${showImage ? '32' : '64'} items-center my-6`}>
         <p className='text-8xl font-bold mb-4'>{languageMode === 'thai' ? alphabet.alphabet : `${alphabet.romanTransliterationPrefix} ${alphabet.romanTransliteration}`}</p>
       </div>
       
