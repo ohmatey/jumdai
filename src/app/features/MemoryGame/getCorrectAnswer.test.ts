@@ -1,6 +1,6 @@
 import { getCorrectAnswer } from './memoryGameStore'
 import { Step, InputMode } from './types.d'
-import { ThaiAlphabet, ThaiAlphabetType } from '@/app/types.d'
+import { ThaiAlphabetType } from '@/app/types.d'
 import thaiAlphabet from '@/app/utils/thaiAlphabet'
 import { filterAlphabetByTypes } from './memoryGameStore'
 

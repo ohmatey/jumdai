@@ -65,17 +65,6 @@ export const getTotalStepPoints = (steps: StepHistory[] = []) => {
   return steps.reduce((acc, step) => acc + step.points, 0)
 }
 
-const makeRandomPrompt = (state: GameState): ThaiAlphabet => {
-  const {
-    alphabet,
-    settings,
-  } = state
-
-  const randomIndex = Math.floor(Math.random() * alphabet.length)
-
-  return alphabet[randomIndex]
-}
-
 const makeRandomOptions = (state: GameState, prompt?: ThaiAlphabet): ThaiAlphabet[] => {
   const {
     alphabet,

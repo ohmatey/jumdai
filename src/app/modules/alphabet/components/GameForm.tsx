@@ -1,7 +1,6 @@
 import {
   Controller,
   useForm,
-  useFieldArray,
 } from 'react-hook-form'
 
 import { defaultInitState } from '@/app/features/MemoryGame/memoryGameStore'
@@ -26,11 +25,6 @@ const GameForm = ({
       ...defaultInitState.settings,
       ...defaultValues,
     }
-  })
-
-  const { fields } = useFieldArray({
-    control,
-    name: 'thaiAlphabetTypes',
   })
 
   const gameMode = watch('gameMode')

@@ -186,13 +186,13 @@ describe('MemoryGame Store', () => {
     }
 
     // Attempt all the alphabets
-    alphabet.forEach((alphabet: ThaiAlphabet) => {
+    alphabet.forEach(() => {
       const correctAnswer = getCorrectAnswer(currentStep)
 
       store.getState().attemptAnswer(correctAnswer)
     })
 
-    const { steps, currentStep: nextCurrentStep } = store.getState()
+    // const { steps, currentStep: nextCurrentStep } = store.getState()
 
     // expect(steps?.length).toBe(alphabet.length)
     // expect(nextCurrentStep).toBeNull()
