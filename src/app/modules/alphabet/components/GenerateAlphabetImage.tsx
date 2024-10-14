@@ -2,8 +2,8 @@
 
 import { useTransition } from 'react'
 
-import type { ThaiAlphabet } from '../types'
-import { generateAlphabetImage } from '../modules/alphabet/actions'
+import type { ThaiAlphabet } from '@/app/types.d'
+import { generateAlphabetImage } from '@/app/modules/alphabet/actions'
 
 export interface GenerateAlphabetImageProps {
   alphabet: ThaiAlphabet
