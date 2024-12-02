@@ -175,27 +175,24 @@ describe('MemoryGame Store', () => {
   test('game should end after completing all alphabets in sequence mode', () => {
     store.getState().startGame(vowelsOnlyInitState)
     
-    const { alphabet, currentStep } = store.getState()
-
-    if (!alphabet || !alphabet.length) {
-      throw new Error('alphabet is not defined')
-    }
-
-    if (!currentStep) {
-      throw new Error('currentStep is not defined')
-    }
+    const { alphabet } = store.getState()
 
     // Attempt all the alphabets
     alphabet.forEach(() => {
-      const correctAnswer = getCorrectAnswer(currentStep)
+      const { currentStep } = store.getState()
+
+      const correctAnswer = currentStep?.options?.find((option: ThaiAlphabet) => option.alphabet === currentStep.prompt.alphabet)
 
       store.getState().attemptAnswer(correctAnswer)
+
     })
 
-    // const { steps, currentStep: nextCurrentStep } = store.getState()
+    const { steps, currentStep: nextCurrentStep } = store.getState()
 
-    // expect(steps?.length).toBe(alphabet.length)
-    // expect(nextCurrentStep).toBeNull()
+    const correctSteps = steps?.filter(step => step.correct)
+
+    expect(correctSteps?.length).toBe(alphabet.length)
+    expect(nextCurrentStep).toBeNull()
   })
 
   test('makeNewStep should generate a new step correctly for random mode', () => {
@@ -209,8 +206,8 @@ describe('MemoryGame Store', () => {
   })
 
   test('makeNewStep should generate a new step with options that match the prompt alphabet type', () => {
-    store = createStore(vowelsOnlyInitState)
-    store.getState().startGame(vowelsOnlyInitState)
+    const store = createStore()
+    store.getState().startGame(customInitState)
 
     const { currentStep, settings } = store.getState()
 
@@ -219,13 +216,13 @@ describe('MemoryGame Store', () => {
 
     // the options should only contain vowels
     const options = currentStep?.options || []
+
+    const currentStepType = currentStep?.prompt.type
     
     options.forEach((option: ThaiAlphabet) => {
-      expect(option.type).toBe(ThaiAlphabetType.Vowel)
+      console.log(option.type, currentStepType)
+      expect(option.type).toBe(currentStepType)
     })
-
-    // prompt should also be a vowel
-    expect(currentStep?.prompt.type).toBe(ThaiAlphabetType.Vowel)
   })
 
   test('attemptAnswer should handle correct answer in random mode', () => {

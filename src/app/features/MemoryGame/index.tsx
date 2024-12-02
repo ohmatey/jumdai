@@ -156,7 +156,7 @@ const CurrentStep = () => {
                 className={'p-4 border border-white font-bold text-4xl'}
               >
                 {settings.languageMode === 'thai' ?
-                  `${!isCurrentStepVowel ? option?.romanTransliterationPrefix : ''} ${option?.romanTransliteration}` :
+                  `${!isCurrentStepVowel ? option?.romanTransliterationPrefix || '' : ''} ${option?.romanTransliteration || ''}` :
                   option?.alphabet
                 }
               </button>

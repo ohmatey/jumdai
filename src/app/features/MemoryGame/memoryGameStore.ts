@@ -1,4 +1,3 @@
-// src/stores/MemoryGame-store.ts
 import { createStore } from 'zustand/vanilla'
 
 import { type ThaiAlphabet, ThaiAlphabetType } from '@/app/types.d'
@@ -70,12 +69,13 @@ const makeRandomOptions = (state: GameState, prompt?: ThaiAlphabet): ThaiAlphabe
     alphabet,
     settings,
   } = state
-  const { numberOfOptions = 3 } = settings as GameSettings
+  const { numberOfOptions = 3 } = settings
 
   let availableAlphabets = alphabet
 
   if (prompt) {
     availableAlphabets = alphabet.filter(alphabet => alphabet.alphabet !== prompt.alphabet)
+    availableAlphabets = filterAlphabetByTypes(availableAlphabets, [prompt?.type])
   }
 
   const randomNumbers = generateUniqueNumbers(numberOfOptions - 1, availableAlphabets.length)

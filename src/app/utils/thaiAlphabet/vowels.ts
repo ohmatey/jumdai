@@ -168,10 +168,10 @@ const vowels: ThaiAlphabet[] = [
     spokenLength: SpokenLength.Long,
   },
   {
-    alphabet: 'เ-อะ',
+    alphabet: 'เ-อ',
     order: 55,
     type: ThaiAlphabetType.Vowel,
-    thaiExamplePrefix: 'เ-อะ',
+    thaiExamplePrefix: 'เ-อ',
     thaiExampleDescription: '',
     romanTransliteration: 'ou',
     romanDescription: 'Ou',

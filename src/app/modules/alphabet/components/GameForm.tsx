@@ -9,6 +9,7 @@ import {
   InputMode,
 } from '@/app/features/MemoryGame/types.d'
 import Checkbox from '@/app/components/Checkbox'
+import Select from '@/app/components/Select'
 import { ThaiAlphabetType } from '@/app/types.d'
 
 export interface GameFormProps {
@@ -71,13 +72,14 @@ const GameForm = ({
         name='gameType'
         control={control}
         render={({ field }) => (
-          <label>
-            <span className='mr-2'>Game Type</span>
-            <select {...field}>
-              <option value='alphabet'>Alphabet</option>
-              <option value='word'>Word</option>
-            </select>
-          </label>
+          <Select
+            label='Game Type'
+            options={[
+              { value: 'alphabet', label: 'Alphabet' },
+              { value: 'word', label: 'Word' },
+            ]}
+            {...field}
+          />
         )}
       />
 
@@ -85,13 +87,14 @@ const GameForm = ({
         name='languageMode'
         control={control}
         render={({ field }) => (
-          <label>
-            <span className='mr-2'>Language Mode</span>
-            <select {...field}>
-              <option value='thai'>Thai</option>
-              <option value='english'>English</option>
-            </select>
-          </label>
+          <Select
+            label='Language Mode'
+            options={[
+              { value: 'thai', label: 'Thai' },
+              { value: 'english', label: 'English' },
+            ]}
+            {...field}
+          />
         )}
       />
 
@@ -131,13 +134,14 @@ const GameForm = ({
         name='gameMode'
         control={control}
         render={({ field }) => (
-          <label>
-            <span className='mr-2'>Game Mode</span>
-            <select {...field}>
-              <option value='random'>Random</option>
-              <option value='sequence'>Sequence</option>
-            </select>
-          </label>
+          <Select
+            label='Game Mode'
+            options={[
+              { value: 'sequence', label: 'Sequence' },
+              { value: 'random', label: 'Random' },
+            ]}
+            {...field}
+          />
         )}
       />
 
@@ -145,15 +149,17 @@ const GameForm = ({
         <Controller
           name='numberOfOptions'
           control={control}
+          defaultValue={defaultValues.numberOfOptions || 3}
           render={({ field }) => (
-            <label>
-              <span className='mr-2'>Number of Options</span>
-              <select {...field}>
-                <option value='3'>3</option>
-                <option value='5'>5</option>
-                <option value='8'>8</option>
-              </select>
-            </label>
+            <Select
+              label='Number of Options'
+              options={[
+                { value: 3, label: '3' },
+                { value: 4, label: '4' },
+                { value: 5, label: '5' },
+              ]}
+              {...field}
+            />
           )}
         />
       )}
@@ -162,14 +168,15 @@ const GameForm = ({
         name='gameLevel'
         control={control}
         render={({ field }) => (
-          <label>
-            <span className='mr-2'>Game Level</span>
-            <select {...field}>
-              <option value='easy'>Easy</option>
-              <option value='medium'>Medium</option>
-              <option value='hard'>Hard</option>
-            </select>
-          </label>
+          <Select
+            label='Game Level'
+            options={[
+              { value: 'easy', label: 'Easy' },
+              { value: 'medium', label: 'Medium' },
+              { value: 'hard', label: 'Hard' },
+            ]}
+            {...field}
+          />
         )}
       />
 

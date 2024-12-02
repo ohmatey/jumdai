@@ -1,7 +1,7 @@
 const GamesHistoryPage = () => {
   return (
-    <div>
-      <h1>Games History</h1>
+    <div className='container mx-auto p-4'>
+      <h1 className='text-4xl font-bold'>Games History</h1>
     </div>
   )
 }
