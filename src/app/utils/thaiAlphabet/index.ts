@@ -1,6 +1,6 @@
 import {
   type ThaiAlphabet,
-} from '@/app/types.d'
+} from '@/app/types'
 
 import consosants from './consonants'
 import vowels from './vowels'

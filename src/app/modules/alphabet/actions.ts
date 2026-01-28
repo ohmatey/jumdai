@@ -12,11 +12,48 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
+// Rate limiting: track requests per IP (in-memory for single instance)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
+const RATE_LIMIT_MAX_REQUESTS = 5
+const RATE_LIMIT_WINDOW_MS = 60 * 1000 // 1 minute
+
+function checkRateLimit(identifier: string): boolean {
+  const now = Date.now()
+  const entry = rateLimitMap.get(identifier)
+
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS })
+    return true
+  }
+
+  if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return false
+  }
+
+  entry.count++
+  return true
+}
+
+// Sanitize path components to prevent path traversal
+function sanitizePathComponent(component: string): string {
+  // Remove any path traversal attempts and invalid filename characters
+  return component
+    .replace(/\.\./g, '')
+    .replace(/[/\\]/g, '')
+    .replace(/[<>:"|?*\x00-\x1f]/g, '')
+    .trim()
+}
+
 const findAlphabet = (alphabet: string) => {
   return thaiAlphabet.find((item) => item.alphabet === alphabet)
 }
 
-export const generateAlphabetImage = async (thaiAlphabet: ThaiAlphabet) => {
+export const generateAlphabetImage = async (thaiAlphabet: ThaiAlphabet, clientIdentifier: string = 'anonymous') => {
+  // Rate limiting check
+  if (!checkRateLimit(clientIdentifier)) {
+    throw new Error('Rate limit exceeded. Please wait before making more requests.')
+  }
+
   if (!thaiAlphabet) {
     throw new Error('Alphabet is required.')
   }
@@ -71,8 +108,26 @@ export const generateAlphabetImage = async (thaiAlphabet: ThaiAlphabet) => {
   const imageResponse = await fetch(imageUrl)
   const imageBuffer = await imageResponse.arrayBuffer()
 
+  // Sanitize filename components to prevent path traversal
+  const sanitizedPrefix = sanitizePathComponent(alphabetData.romanTransliterationPrefix || '')
+  const sanitizedTransliteration = sanitizePathComponent(alphabetData.romanTransliteration || '')
+
+  if (!sanitizedPrefix || !sanitizedTransliteration) {
+    throw new Error('Invalid alphabet data for filename generation.')
+  }
+
   // Save the image to the public folder
-  const imagePath = path.join(process.cwd(), `public/thai-alphabet/${alphabetData.romanTransliterationPrefix}-${alphabetData.romanTransliteration}.webp`)
+  const filename = `${sanitizedPrefix}-${sanitizedTransliteration}.webp`
+  const targetDir = path.join(process.cwd(), 'public', 'thai-alphabet')
+  const imagePath = path.join(targetDir, filename)
+
+  // Verify the resolved path is within the target directory (defense in depth)
+  const resolvedPath = path.resolve(imagePath)
+  const resolvedTargetDir = path.resolve(targetDir)
+  if (!resolvedPath.startsWith(resolvedTargetDir + path.sep)) {
+    throw new Error('Invalid file path detected.')
+  }
+
   fs.writeFileSync(imagePath, Buffer.from(imageBuffer))
 
   console.info(`Image finished generating for ${alphabetData.alphabet}`)

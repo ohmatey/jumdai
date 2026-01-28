@@ -4,7 +4,7 @@ import {
   VowelGroupOrder,
   ThaiAlphabetType,
   SpokenLength,
-} from '@/app/types.d'
+} from '@/app/types'
 
 const vowels: ThaiAlphabet[] = [
   // e, short vowels

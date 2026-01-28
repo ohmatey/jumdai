@@ -1,3 +1,5 @@
+import { type ThaiAlphabet, ThaiAlphabetType } from '@/app/types'
+
 export type Reward = {
   step: Step
   attempt: ThaiAlphabet

@@ -1,6 +1,6 @@
 import { getCorrectAnswer } from './memoryGameStore'
-import { Step, InputMode } from './types.d'
-import { ThaiAlphabetType } from '@/app/types.d'
+import { Step, InputMode } from './types'
+import { ThaiAlphabetType } from '@/app/types'
 import thaiAlphabet from '@/app/utils/thaiAlphabet'
 import { filterAlphabetByTypes } from './memoryGameStore'
 
@@ -29,7 +29,7 @@ describe('getCorrectAnswer', () => {
     expect(getCorrectAnswer(currentStep)).toEqual(prompt)
   })
 
-  test('should throw error if prompt is not defined', () => {
+  test('should return undefined if prompt is not defined', () => {
     const currentStep: Step = {
       prompt: undefined,
       options: [
@@ -47,7 +47,11 @@ describe('getCorrectAnswer', () => {
       inputMode: InputMode.Options,
     }
 
-    expect(() => getCorrectAnswer(currentStep)).toThrow('Prompt or currentStep is not defined')
+    expect(getCorrectAnswer(currentStep)).toBeUndefined()
+  })
+
+  test('should return undefined if currentStep is not defined', () => {
+    expect(getCorrectAnswer(undefined)).toBeUndefined()
   })
 
   test('should return correct answer for vowels', () => {

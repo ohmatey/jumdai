@@ -1,6 +1,6 @@
 import { createStore } from 'zustand/vanilla'
 
-import { type ThaiAlphabet, ThaiAlphabetType } from '@/app/types.d'
+import { type ThaiAlphabet, ThaiAlphabetType } from '@/app/types'
 import thaiAlphabet from '@/app/utils/thaiAlphabet'
 import generateUniqueNumbers from '../../utils/generateUniqueNumbers'
 import {
@@ -13,7 +13,13 @@ import {
   InputMode,
   GameLevel,
   LanguageMode,
-} from './types.d'
+} from './types'
+import { 
+  DEFAULT_NUMBER_OF_OPTIONS, 
+  INITIAL_POINTS_MULTIPLIER,
+  INCORRECT_ANSWER_PENALTY,
+  MIN_POINTS 
+} from '@/app/constants/game.constants'
 
 export type MemoryGameActions = {
   startGame: (gameState?: GameState) => void
@@ -36,7 +42,7 @@ export const defaultInitState: GameState = {
     gameMode: GameMode.Sequence,
     gameLevel: GameLevel.Easy,
     languageMode: LanguageMode.Thai,
-    numberOfOptions: 3,
+    numberOfOptions: DEFAULT_NUMBER_OF_OPTIONS,
     inputMode: InputMode.Options,
     thaiAlphabetTypes: Object.values(ThaiAlphabetType),
   }
@@ -48,13 +54,16 @@ export const filterAlphabetByTypes = (alphabet: ThaiAlphabet[], types: ThaiAlpha
   })
 }
 
-export const getCorrectAnswer = (currentStep?: Step) => currentStep?.options?.find(option => {
+export const getCorrectAnswer = (currentStep?: Step) => {
   if (!currentStep || !currentStep.prompt) {
-    throw new Error('Prompt or currentStep is not defined')
+    console.error('Prompt or currentStep is not defined')
+    return undefined
   }
   
-  return option.alphabet === currentStep.prompt.alphabet
-})
+  return currentStep?.options?.find(option => {
+    return option.alphabet === currentStep.prompt.alphabet
+  })
+}
 
 export const checkIsCorrectAttempt = (currentStep?: Step, attempted?: ThaiAlphabet) => {
   return currentStep?.prompt.alphabet === attempted?.alphabet
@@ -84,8 +93,14 @@ const makeRandomOptions = (state: GameState, prompt?: ThaiAlphabet): ThaiAlphabe
     return availableAlphabets[number]
   })
 
-  // randomize the options
-  const randomOptions = [...newRandomOptions, prompt].sort(() => Math.random() - 0.5)
+  // randomize the options using Fisher-Yates shuffle for uniform distribution
+  const randomOptions: ThaiAlphabet[] = prompt
+    ? [...newRandomOptions, prompt]
+    : [...newRandomOptions]
+  for (let i = randomOptions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [randomOptions[i], randomOptions[j]] = [randomOptions[j], randomOptions[i]];
+  }
 
   return randomOptions
 }
@@ -116,7 +131,7 @@ const makeSequenceStep = (state: GameState, attempted?: ThaiAlphabet): Step => {
     return {
       prompt: nextAlphabet,
       options: randomOptions,
-      points: randomOptions.length,
+      points: randomOptions.length * INITIAL_POINTS_MULTIPLIER,
       inputMode: settings.inputMode,
     }
   }
@@ -126,7 +141,7 @@ const makeSequenceStep = (state: GameState, attempted?: ThaiAlphabet): Step => {
   return {
     prompt: isCorrect ? nextAlphabet : currentStep?.prompt,
     options: isCorrect ? randomOptions : currentStep?.options,
-    points: currentStep?.points + (isCorrect ? 0 : -1),
+    points: Math.max(MIN_POINTS, currentStep?.points + (isCorrect ? 0 : -INCORRECT_ANSWER_PENALTY)),
     inputMode: settings?.inputMode,
   }
 }
@@ -161,7 +176,7 @@ const makeRandomStep = (state: GameState, attempted?: ThaiAlphabet): Step => {
     return {
       prompt: nextRandomPrompt,
       options: randomOptions,
-      points: state?.currentStep?.points || randomOptions.length,
+      points: state?.currentStep?.points || (randomOptions.length * INITIAL_POINTS_MULTIPLIER),
       inputMode: state.settings.inputMode,
     }
   }
@@ -171,7 +186,7 @@ const makeRandomStep = (state: GameState, attempted?: ThaiAlphabet): Step => {
   return {
     prompt: isCorrect ? nextRandomPrompt : currentStep.prompt,
     options: isCorrect ? randomOptions : currentStep.options,
-    points: currentStep.points - (isCorrect ? 0 : 1),
+    points: Math.max(MIN_POINTS, currentStep.points - (isCorrect ? 0 : INCORRECT_ANSWER_PENALTY)),
     inputMode: settings.inputMode,
   }
 }
@@ -193,18 +208,40 @@ export const createMemoryGameStore = (
   return createStore<MemoryGameStore>()((set) => ({
     ...initState,
     startGame: (gameState: GameState = initState) => set(() => {
-      const filteredAlphabet = filterAlphabetByTypes(gameState.alphabet, gameState.settings.thaiAlphabetTypes)
+      try {
+        const filteredAlphabet = filterAlphabetByTypes(gameState.alphabet, gameState.settings.thaiAlphabetTypes)
 
-      const newStep = makeNewStep({
-        ...gameState,
-        alphabet: filteredAlphabet,
-      })
+        if (filteredAlphabet.length === 0) {
+          console.error('No alphabet items match the selected types')
+          return {
+            ...initState,
+            ...gameState,
+            started: false,
+            finished: true,
+          }
+        }
 
-      return {
-        ...initState,
-        ...gameState,
-        started: true,
-        currentStep: newStep,
+        const newStep = makeNewStep({
+          ...gameState,
+          alphabet: filteredAlphabet,
+        })
+
+        return {
+          ...initState,
+          ...gameState,
+          started: true,
+          finished: false,
+          currentStep: newStep,
+          steps: [],
+        }
+      } catch (error) {
+        console.error('Error starting game:', error)
+        return {
+          ...initState,
+          ...gameState,
+          started: false,
+          finished: true,
+        }
       }
     }),
     endGame: () => set(() => {
@@ -214,66 +251,74 @@ export const createMemoryGameStore = (
       }
     }),
     attemptAnswer: (attempted: ThaiAlphabet) => set((state) => {
-      const {
-        currentStep,
-        settings,
-        steps,
-        alphabet,
-      } = state
+      try {
+        const {
+          currentStep,
+          settings,
+          steps,
+          alphabet,
+        } = state
 
-      const filteredAlphabet = filterAlphabetByTypes(alphabet, settings.thaiAlphabetTypes)
+        const filteredAlphabet = filterAlphabetByTypes(alphabet, settings.thaiAlphabetTypes)
 
-      if (!currentStep) {
-        return state // If there's no current step, do nothing
-      }
+        if (!currentStep || !currentStep.prompt) {
+          console.error('No current step to attempt')
+          return state
+        }
 
-      const isCorrectAttempt = checkIsCorrectAttempt(currentStep, attempted)
+        const isCorrectAttempt = checkIsCorrectAttempt(currentStep, attempted)
 
-      const attemptedStep = {
-        ...currentStep,
-        attempt: attempted,
-        correct: isCorrectAttempt,
-        points: isCorrectAttempt ? currentStep.points : 0
-      }
+        const attemptedStep: StepHistory = {
+          ...currentStep,
+          attempt: attempted,
+          correct: isCorrectAttempt,
+          points: isCorrectAttempt ? currentStep.points : 0
+        }
 
-      const newHistory: StepHistory[] = steps ? [
-        ...steps || [],
-        attemptedStep
-      ] : [attemptedStep]
+        const newHistory: StepHistory[] = steps ? [
+          ...steps,
+          attemptedStep
+        ] : [attemptedStep]
 
-      const newStep = makeNewStep(state, attempted)
+        // Check if game should end
+        const isSequenceGameMode = settings.gameMode === GameMode.Sequence
+        const isRandomGameMode = settings.gameMode === GameMode.Random
+        const correctSteps = newHistory.filter((step) => step.correct)
 
-      if (!isCorrectAttempt) {
-        return {
-          ...state,
-          currentStep: newStep,
-          steps: newHistory
-        } as GameState
-      }
+        // For sequence mode: end when all alphabet items are correctly answered
+        const sequenceGameComplete = isSequenceGameMode && correctSteps.length === filteredAlphabet.length
+        
+        // For random mode: end after a certain number of rounds (e.g., 20 questions)
+        const randomGameComplete = isRandomGameMode && newHistory.length >= 20
+        
+        // Check if any points left (game over condition)
+        const noPointsLeft = currentStep.points <= 0 && !isCorrectAttempt
 
-      const isSequenceGameMode = settings.gameMode === 'sequence'
-      const correctSteps = newHistory.filter((step) => step.correct)
+        if (sequenceGameComplete || randomGameComplete || noPointsLeft) {
+          return {
+            ...state,
+            alphabet: filteredAlphabet,
+            currentStep: null,
+            started: false,
+            finished: true,
+            steps: newHistory,
+            settings: state.settings,
+          } as GameState
+        }
 
-      const correctStapsMatchAlphabet = correctSteps?.length === filteredAlphabet?.length
+        // Continue game with new step
+        const newStep = makeNewStep(state, isCorrectAttempt ? attempted : undefined)
 
-      if (isSequenceGameMode && correctStapsMatchAlphabet) {
         return {
           ...state,
           alphabet: filteredAlphabet,
-          currentStep: null,
-          started: false,
-          finished: true,
-          steps: newHistory,
-          settings: state.settings,
+          currentStep: newStep,
+          steps: newHistory
         } as GameState
+      } catch (error) {
+        console.error('Error attempting answer:', error)
+        return state
       }
-      
-      return {
-        ...state,
-        alphabet: filteredAlphabet,
-        currentStep: newStep,
-        steps: newHistory
-      } as GameState
     })
   }))
 }

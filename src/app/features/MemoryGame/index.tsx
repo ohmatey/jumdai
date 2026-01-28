@@ -1,16 +1,18 @@
 'use client'
 
-import { useEffect, useMemo } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import React, { useEffect, useMemo } from 'react'
 
 import { useMemoryGame, MemoryGameProvider } from './useMemoryGame'
 import AlphabetCard from '@/app/modules/alphabet/components/AlphabetCard'
+import LoadingState from './components/LoadingState'
+import { AlphabetErrorBoundary } from '@/app/modules/alphabet/components/AlphabetErrorBoundary'
 import { defaultInitState, getTotalStepPoints } from './memoryGameStore'
+import ValidatedTextInput from './components/ValidatedTextInput'
 import {
   type GameState,
   InputMode,
-} from './types.d'
-import { type ThaiAlphabet, ThaiAlphabetType } from '@/app/types.d'
+} from './types'
+import { type ThaiAlphabet, ThaiAlphabetType } from '@/app/types'
 
 export interface GameInputFormProps {
   onSubmit: (attempt: ThaiAlphabet) => void
@@ -23,72 +25,29 @@ const GameInputForm = ({
   alphabet,
   maxLength = 1,
 }: GameInputFormProps) => {
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors }
-  } = useForm<{ answer: string }>({
-    mode: 'onChange'
-  })
-
-  const handleSubmitForm = ({
-    answer
-  }: {
-    answer: string
-  }) => {
-    const isInAlphabet = alphabet.find((a) => a.alphabet === answer)
-
-    if (isInAlphabet) {
-      onSubmit(isInAlphabet)
-
-      reset()
+  const handleValidatedSubmit = (answer: string) => {
+    // Find the alphabet character that matches the validated input
+    const matchedAlphabet = alphabet.find((a) => a.alphabet === answer)
+    
+    if (matchedAlphabet) {
+      onSubmit(matchedAlphabet)
+    } else {
+      // This shouldn't happen with proper validation, but handle it gracefully
+      console.error('No matching alphabet found for:', answer)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit(handleSubmitForm)}>
-      <div className='flex flex-col items-center'>
-        <div className='flex flex-row items-center gap-4'>
-          <Controller
-            name='answer'
-            control={control}
-            defaultValue=''
-            rules={{
-              required: true,
-              validate: (value) => {
-                if (value.length > maxLength) {
-                  return 'Too many characters'
-                }
-
-                const isInAlphabet = alphabet.find((a) => a.alphabet === value)
-                
-                if (!isInAlphabet) {
-                  return 'Not in alphabet'
-                }
-              }
-            }}
-            render={({ field }) => (
-              <div>
-                <input
-                  {...field}
-                  autoFocus
-                  className='p-4 border border-white font-bold text-4xl text-center max-w-32 w-full'
-                />
-              </div>
-            )}
-          />
-
-          <button
-            className='px-6 py-4 border font-bold text-l mt-2 border-gray-500 hover:bg-gray-100'
-          >Submit</button>
-        </div>
-
-        {errors.answer && (
-          <p className='text-red-500'>{errors.answer.message}</p>
-        )}
-      </div>
-    </form>
+    <div className='flex flex-col items-center'>
+      <ValidatedTextInput
+        onSubmit={handleValidatedSubmit}
+        placeholder={`Enter Thai character (max ${maxLength} character${maxLength > 1 ? 's' : ''})`}
+        className='p-4 border border-white font-bold text-4xl text-center max-w-32'
+      />
+      <p className='text-sm text-gray-400 mt-2'>
+        Type the Thai character and press Enter or click Submit
+      </p>
+    </div>
   )
 }
 
@@ -121,16 +80,14 @@ const CurrentStep = () => {
   }, [startGame, started])
 
   if (!currentStep || !currentStep.prompt) {
-    return (
-      <div className='flex flex-col items-center'>
-        Loading..
-      </div>
-    )
+    return <LoadingState message='Preparing your game...' />
   }
 
   return (
     <div className='flex flex-col items-center'>
-      <AlphabetCard alphabet={currentStep.prompt} languageMode={languageMode} />
+      <AlphabetErrorBoundary componentName='AlphabetCard'>
+        <AlphabetCard alphabet={currentStep.prompt} languageMode={languageMode} />
+      </AlphabetErrorBoundary>
 
       {isInputMode && (
         <div className='flex flex-col items-center mt-12'>
@@ -143,22 +100,28 @@ const CurrentStep = () => {
       )}
 
       {isOptionsMode && (
-        <div className='flex flex-wrap gap-4 justify-center mt-12'>
+        <div className='flex flex-wrap gap-4 justify-center mt-12' role='group' aria-label='Answer options'>
           {currentStep.options?.map((option, index) => {
             const handleAttempt = () => {
-              attemptAnswer(option)
+              try {
+                attemptAnswer(option)
+              } catch (error) {
+                console.error('Error attempting answer:', error)
+              }
             }
+
+            const optionLabel = settings.languageMode === 'thai'
+              ? `${!isCurrentStepVowel ? option?.romanTransliterationPrefix || '' : ''} ${option?.romanTransliteration || ''}`.trim()
+              : option?.alphabet
 
             return (
               <button
-                key={index}
+                key={option?.alphabet}
                 onClick={handleAttempt}
+                aria-label={`Select ${optionLabel}`}
                 className={'p-4 border border-white font-bold text-4xl'}
               >
-                {settings.languageMode === 'thai' ?
-                  `${!isCurrentStepVowel ? option?.romanTransliterationPrefix || '' : ''} ${option?.romanTransliteration || ''}` :
-                  option?.alphabet
-                }
+                {optionLabel}
               </button>
             )
           })}
@@ -186,16 +149,20 @@ const SettingsBox = ({
   const totalPoints = useMemo(() => getTotalStepPoints(steps), [steps])
 
   const handleEndGame = () => {
-    endGame()
-    
-    if (onEndGame) {
-      onEndGame(gameState)
+    try {
+      endGame()
+      
+      if (onEndGame) {
+        onEndGame(gameState)
+      }
+    } catch (error) {
+      console.error('Error ending game:', error)
     }
   }
 
   return (
-    <div className='flex mb-6 justify-between w-full'>
-      <div>
+    <div className='flex mb-6 justify-between w-full' role='region' aria-label='Game status'>
+      <div aria-live='polite' aria-atomic='true'>
         <p className='text-4xl font-bold mb-1'>{totalPoints} Points</p>
         <p>{steps.filter((step) => step.correct).length}/{steps.length + 1} Correct Attempts</p>
 
@@ -224,10 +191,11 @@ const StepHistory = () => {
   const recentSteps = steps.slice(-3).reverse()
 
   return (
-    <div className='flex flex-col gap-4'>
+    <div className='flex flex-col gap-4' role='list' aria-label='Recent attempts'>
       {recentSteps.map((step, index) => {
+        const stepKey = `${step.prompt.alphabet}-${step.attempt?.alphabet}-${steps.length - index}`
         return (
-          <div key={index} className={`p-4 py-8 text-center border-2 max-w-64 w-full rounded-2xl ${step.correct ? 'border-green-500' : 'border-red-500'} ${index === 0 ? 'opacity-100' : index === 1 ? 'opacity-50' : 'opacity-30'}`}>
+          <div key={stepKey} role='listitem' className={`p-4 py-8 text-center border-2 max-w-64 w-full rounded-2xl ${step.correct ? 'border-green-500' : 'border-red-500'} ${index === 0 ? 'opacity-100' : index === 1 ? 'opacity-50' : 'opacity-30'}`}>
             {settings.languageMode === 'thai' ? (
               <div className='flex flex-col items-center'>
                 <p className='text-6xl font-bold'>{step.prompt.alphabet}</p>
@@ -253,29 +221,67 @@ export interface MemoryGameProps {
   onEndGame?: (gameState: GameState) => void
 }
 
+
+// Main MemoryGame component with loading state
+const MemoryGameContent = ({
+  onEndGame,
+}: {
+  onEndGame?: (gameState: GameState) => void
+}) => {
+  const gameState = useMemoryGame(s => s)
+  const { started, finished, steps } = gameState
+
+  // Show loading state while game initializes
+  if (!started && !finished && (steps?.length || 0) === 0) {
+    return (
+      <div className='flex flex-col items-center container mx-auto'>
+        <SettingsBox onEndGame={onEndGame} />
+        <CurrentStep />
+        <div className='overflow-x auto mt-12'>
+          <StepHistory />
+        </div>
+      </div>
+    )
+  }
+
+  // Show game over state
+  if (finished) {
+    return (
+      <div className='flex flex-col items-center container mx-auto'>
+        <SettingsBox onEndGame={onEndGame} />
+        <div className='flex flex-col items-center p-8 bg-green-50 rounded-lg'>
+          <p className='text-4xl font-bold text-green-800 mb-2'>Game Over!</p>
+          <p className='text-2xl text-green-700'>You scored {getTotalStepPoints(steps || [])} points</p>
+          <p className='text-lg text-gray-600 mt-2'>
+            {(steps || []).filter(s => s.correct).length} out of {(steps || []).length} correct
+          </p>
+        </div>
+        <div className='overflow-x auto mt-12'>
+          <StepHistory />
+        </div>
+      </div>
+    )
+  }
+
+  // Show active game state
+  return (
+    <div className='flex flex-col items-center container mx-auto'>
+      <SettingsBox onEndGame={onEndGame} />
+      <CurrentStep />
+      <div className='overflow-x auto mt-12'>
+        <StepHistory />
+      </div>
+    </div>
+  )
+}
+
 const MemoryGame = ({
   gameState = defaultInitState,
   onEndGame,
 }: MemoryGameProps) => {
   return (
     <MemoryGameProvider gameState={gameState}>
-      {!gameState.started && (
-        <div className='flex flex-col items-center container mx-auto'>
-          <SettingsBox onEndGame={onEndGame} />
-
-          {!gameState.finished && <CurrentStep />}
-          {gameState.finished && (
-            <div className='flex flex-col items-center'>
-              <p className='text-4xl font-bold'>Game Over</p>
-              <p className='text-2xl'>You scored {getTotalStepPoints(gameState.steps)} points</p>
-            </div>
-          )}
-
-          <div className='overflow-x auto mt-12'>
-            <StepHistory />
-          </div>
-        </div>
-      )}
+      <MemoryGameContent onEndGame={onEndGame} />
     </MemoryGameProvider>
   )
 }

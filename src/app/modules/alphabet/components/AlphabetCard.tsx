@@ -1,10 +1,13 @@
 import Image from 'next/image'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { AlphabetErrorBoundary } from './AlphabetErrorBoundary'
 
 import {
   type GameSettings,
   LanguageMode,
-} from '@/app/features/MemoryGame/types.d'
-import type { ThaiAlphabet } from '@/app/types.d'
+} from '@/app/features/MemoryGame/types'
+import type { ThaiAlphabet } from '@/app/types'
 
 export interface AlphabetCardProps {
   alphabet: ThaiAlphabet
@@ -26,38 +29,55 @@ const AlphabetCard = ({
   showThaiDescription = false
 }: AlphabetCardProps) => {
   return (
-    <div className='border-4 mb-4 border-white text-center rounded-xl shadow-md w-full max-w-64 min-h-64'>
-      {showType && <p className='text-md mb-2 text-gray-400'>{alphabet.consonantGroup} {alphabet.type}</p>}
-
-      {(alphabet.imageSrc && showImage) && (
-        <div className='flex justify-center px-2'>
-          <Image
-            src={`/thai-alphabet${alphabet.imageSrc}`}
-            alt={alphabet.alphabet}
-            width={200}
-            height={200}
-            className='rounded-xl'
-          />
-        </div>
-      )}
-      
-      <div className={`flex justify-center min-h-${showImage ? '32' : '64'} items-center my-6`}>
-        <p className='text-8xl font-bold mb-4'>{languageMode === 'thai' ? alphabet.alphabet : `${alphabet.romanTransliterationPrefix} ${alphabet.romanTransliteration}`}</p>
-      </div>
-      
-      <div>
-        <div>
-          {showThaiDescription && <p className='text-2xl'>{alphabet.thaiExamplePrefix} {alphabet.thaiExampleDescription}</p>}
-          {showRomanTransliteration && <p className='text-2xl mb-4'>{alphabet.romanTransliterationPrefix} {alphabet.romanTransliteration}</p>}
-        </div>
-
-        {showRomanDescription && (
-          <div>
-            <p className='text-xl text-gray-500'>{alphabet.romanDescription}</p>
+    <Card className='border-2 border-thai-gold/30 shadow-xl hover:shadow-2xl transition-shadow duration-300 w-full max-w-80 min-h-80 bg-gradient-to-br from-white to-thai-gold-light/30'>
+      <CardHeader className='text-center pb-4'>
+        {showType && (
+          <Badge variant="outline" className="mx-auto mb-2 border-thai-blue text-thai-blue">
+            {alphabet.consonantGroup} {alphabet.type}
+          </Badge>
+        )}
+        
+        {(alphabet.imageSrc && showImage) && (
+          <div className='flex justify-center px-2 mb-4'>
+            <AlphabetErrorBoundary componentName='AlphabetImage'>
+              <Image
+                src={`/thai-alphabet${alphabet.imageSrc}`}
+                alt={alphabet.alphabet}
+                width={200}
+                height={200}
+                className='rounded-xl shadow-lg'
+              />
+            </AlphabetErrorBoundary>
           </div>
         )}
-      </div>
-    </div>
+      </CardHeader>
+      
+      <CardContent className='text-center space-y-4'>
+        <div className={`flex justify-center items-center ${showImage ? 'min-h-32' : 'min-h-64'}`}>
+          <p className='text-8xl font-bold text-thai-red drop-shadow-sm'>
+            {languageMode === 'thai' ? alphabet.alphabet : `${alphabet.romanTransliterationPrefix} ${alphabet.romanTransliteration}`}
+          </p>
+        </div>
+        
+        <div className='space-y-3'>
+          {showThaiDescription && (
+            <p className='text-2xl text-foreground font-medium'>
+              {alphabet.thaiExamplePrefix} {alphabet.thaiExampleDescription}
+            </p>
+          )}
+          {showRomanTransliteration && (
+            <p className='text-2xl text-thai-blue font-semibold'>
+              {alphabet.romanTransliterationPrefix} {alphabet.romanTransliteration}
+            </p>
+          )}
+          {showRomanDescription && (
+            <p className='text-xl text-muted-foreground'>
+              {alphabet.romanDescription}
+            </p>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 

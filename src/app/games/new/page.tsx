@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { GameSettings } from '@/app/features/MemoryGame/types'
 import GameForm from '@/app/modules/alphabet/components/GameForm'
 import { defaultInitState } from '@/app/features/MemoryGame/memoryGameStore'
+import { GAME_ID_MIN, GAME_ID_MAX, GAME_URL_PARAMS } from '@/app/constants/game.constants'
 
 const Home = () => {
   const router = useRouter()
@@ -18,41 +19,54 @@ const Home = () => {
     inputMode,
     thaiAlphabetTypes,
   }: GameSettings) => {
-    const randomGameId = Math.floor(Math.random() * 1000)
+    try {
+      const randomGameId = Math.floor(Math.random() * (GAME_ID_MAX - GAME_ID_MIN + 1)) + GAME_ID_MIN
 
-    // put new game settings in params
-    const params = new URLSearchParams()
+      // put new game settings in params
+      const params = new URLSearchParams()
 
-    params.append('level', gameLevel)
-    params.append('mode', gameMode)
-    params.append('type', gameType)
-    params.append('language-mode', languageMode)
+      params.append(GAME_URL_PARAMS.LEVEL, gameLevel)
+      params.append(GAME_URL_PARAMS.MODE, gameMode)
+      params.append(GAME_URL_PARAMS.TYPE, gameType)
+      params.append(GAME_URL_PARAMS.LANGUAGE_MODE, languageMode)
 
-    if (numberOfOptions) {
-      params.append('number-options', numberOfOptions.toString())
+      if (numberOfOptions) {
+        params.append(GAME_URL_PARAMS.NUMBER_OPTIONS, numberOfOptions.toString())
+      }
+
+      if (inputMode) {
+        params.append(GAME_URL_PARAMS.INPUT_MODE, inputMode)
+      }
+
+      if (thaiAlphabetTypes) {
+        thaiAlphabetTypes.forEach((type) => {
+          params.append(GAME_URL_PARAMS.ALPHABET_TYPE, type)
+        })
+      }
+
+      router.push(`/games/${randomGameId}?${params.toString()}`)
+    } catch (error) {
+      console.error('Error starting game:', error)
+      // The error boundary will handle any routing errors
+      throw error
     }
-
-    if (inputMode) {
-      params.append('input-mode', inputMode)
-    }
-
-    if (thaiAlphabetTypes) {
-      thaiAlphabetTypes.forEach((type) => {
-        params.append('alphabet-type', type)
-      })
-    }
-
-    router.push(`/games/${randomGameId}?${params.toString()}`)
   }
 
   return (
-    <div className='flex flex-col gap-4 items-center'>
-      <h2 className='text-xl font-bold'>New Game</h2>
+    <div className='min-h-screen bg-gradient-to-br from-thai-gold-light via-white to-thai-blue-light'>
+      <div className='container mx-auto px-4 py-12'>
+        <div className='text-center mb-12'>
+          <h1 className='text-5xl font-bold text-thai-red mb-4'>Create New Game</h1>
+          <p className='text-xl text-muted-foreground'>
+            Configure your Thai alphabet learning experience
+          </p>
+        </div>
 
-      <GameForm
-        onSubmit={startGame}
-        defaultValues={defaultInitState.settings}
-      />
+        <GameForm
+          onSubmit={startGame}
+          defaultValues={defaultInitState.settings}
+        />
+      </div>
     </div>
   )
 }

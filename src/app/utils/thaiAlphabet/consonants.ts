@@ -2,7 +2,7 @@ import {
   type ThaiAlphabet,
   ConsonantGroup,
   ThaiAlphabetType,
-} from '@/app/types.d'
+} from '@/app/types'
 
 const consonants: ThaiAlphabet[] = [
   {

@@ -1,6 +1,6 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 
-import { ThaiAlphabetType } from '@/app/types.d'
+import { ThaiAlphabetType } from '@/app/types'
 
 const ALPHABET_TYPE_KEY = 'type'
 

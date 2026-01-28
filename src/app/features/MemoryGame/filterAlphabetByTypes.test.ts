@@ -1,6 +1,6 @@
 import thaiAlphabet from '@/app/utils/thaiAlphabet'
 import { filterAlphabetByTypes } from './memoryGameStore'
-import { ThaiAlphabetType } from '@/app/types.d'
+import { ThaiAlphabetType } from '@/app/types'
 
 describe('filterAlphabetByTypes', () => {
   test('should return an empty array if the input array is empty', () => {

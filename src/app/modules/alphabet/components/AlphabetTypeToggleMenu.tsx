@@ -1,6 +1,6 @@
 'use client'
 
-import { ThaiAlphabetType } from '@/app/types.d'
+import { ThaiAlphabetType } from '@/app/types'
 import Checkbox from '@/app/components/Checkbox'
 import useAlphabetFilters from '../hooks/useAlphabetFilters'
 

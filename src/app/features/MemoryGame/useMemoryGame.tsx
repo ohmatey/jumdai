@@ -21,7 +21,7 @@ export const MemoryGameProvider = ({
   gameState,
   children,
 }: MemoryGameProviderProps) => {
-  const storeRef = useRef<MemoryGameApi>()
+  const storeRef = useRef<MemoryGameApi | null>(null)
   if (!storeRef.current) {
     storeRef.current = createMemoryGameStore(gameState)
   }
